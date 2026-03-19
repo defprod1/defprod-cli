@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "rootDir": ".",
+        "sourceMap": true,
+        "declaration": false,
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "importHelpers": false,
+        "target": "es2015",
+        "module": "commonjs",
+        "lib": ["es2023"],
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "types": ["node"],
+        "paths": {
+            "@defprod/defprod-common": ["libs/defprod-common/src/index.ts"]
+        }
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts", "src/**/__tests__/**"]
+}

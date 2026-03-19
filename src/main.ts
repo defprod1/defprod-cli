@@ -1,0 +1,116 @@
+import { Command } from 'commander';
+import { CliRepl } from './app/core/cli-repl';
+import { CliRpcClient } from './app/services/cli-rpc.client';
+import { CliLlmService } from './app/services/cli-llm.service';
+import { CliConfigService } from './app/services/cli-config.service';
+import { CliInitService } from './app/services/cli-init.service';
+import { CommandParser } from './app/core/parser/command-parser';
+import { rootCommand } from './app/spec/root.command';
+
+const program = new Command();
+
+program
+    .name('defprod')
+    .description('DefProd CLI - Command-line interface for DefProd product definitions')
+    .version('1.0.0')
+    .option('--strict', 'Enable strict mode (no fuzzy matching)')
+    .option('--json', 'Output in JSON format')
+    .allowExcessArguments(false);
+
+// Handle one-shot commands or start REPL
+async function main() {
+
+    const args: string[] = process.argv.slice(2);
+
+    // Check if config file exists, and if not, prompt to create one
+    if ( ! CliInitService.configFileExists() ) {
+        const shouldCreate: boolean = await CliInitService.promptToCreateConfig();
+        if ( shouldCreate ) {
+            await CliInitService.runInit();
+        } else {
+            console.log('Configuration file not created. Some features may not work without configuration.');
+            console.log('You can run the init wizard later with: defprod /init\n');
+        }
+    }
+
+    // If no arguments, start REPL
+    if ( args.length === 0 ) {
+        const repl: CliRepl = new CliRepl();
+        await repl.start();
+        return;
+    }
+
+    // Parse command line arguments
+    program.parse(args);
+    const options = program.opts();
+    const commandArgs: string[] = program.args;
+
+    // If command starts with /, it's a CLI command
+    // Otherwise, it's a natural language command
+    const input: string = commandArgs.join(' ');
+
+    if ( input.startsWith('/') ) {
+        // CLI command
+        await processCliCommand(input, options);
+    } else if ( input.trim() !== '' ) {
+        // Natural language command
+        await processNaturalLanguageCommand(input, options);
+    } else {
+        // No command, start REPL
+        const repl: CliRepl = new CliRepl();
+        await repl.start();
+    }
+}
+
+/**
+ * Process CLI command in one-shot mode using the new command parser
+ */
+async function processCliCommand(command: string, options: any): Promise<void> {
+
+    // Apply global options to config
+    if ( options.strict ) {
+        CliConfigService.setConfigValue('strictMode', true);
+    }
+
+    const commandParser: CommandParser = new CommandParser();
+
+    try {
+        // Use the new command parser
+        await commandParser.parseAndExecute(command, rootCommand);
+    } catch ( error: any ) {
+        console.error(`Error: ${error.message}`);
+        process.exit(1);
+    }
+}
+
+/**
+ * Process natural language command in one-shot mode
+ */
+async function processNaturalLanguageCommand(command: string, options: any): Promise<void> {
+
+    const rpcClient: CliRpcClient = new CliRpcClient();
+    const llmService: CliLlmService = new CliLlmService(rpcClient);
+
+    try {
+        const currentProduct: string | undefined = CliConfigService.getCurrentProduct();
+        const context: string = currentProduct ? `Current product: ${currentProduct}` : 'No product selected';
+
+        const llmResponse = await llmService.processCommand(command, context);
+
+        if ( options.json ) {
+            console.log(JSON.stringify(llmResponse, null, 2));
+        } else {
+            // Display LLM response (tool calls are executed internally in the agent loop)
+            console.log(llmResponse.text);
+        }
+    } catch ( error: any ) {
+        console.error(`Error: ${error.message}`);
+        process.exit(1);
+    }
+}
+
+// Run main function
+main().catch((error) => {
+    console.error('Fatal error:', error);
+    process.exit(1);
+});
