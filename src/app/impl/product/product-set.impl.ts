@@ -34,7 +34,7 @@ export async function productSetImpl(ctx: CliExecutionContext): Promise<void> {
         try {
             const products: any[] = await rpcClient.request({
                 name: CaseName.listProducts,
-                input: undefined
+                input: { isTemplate: false }
             });
 
             const identifierLower: string = identifier.toLowerCase();
@@ -80,7 +80,7 @@ async function setProductByNumber(rpcClient: CliRpcClient, productNumber: number
     try {
         const products: any[] = await rpcClient.request({
             name: CaseName.listProducts,
-            input: undefined
+            input: { isTemplate: false }
         });
 
         if ( products.length === 0 ) {

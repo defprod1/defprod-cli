@@ -31,10 +31,14 @@ export enum CaseName {
     startDefinitionGenAiSession = 'startDefinitionGenAiSession',
     continueDefinitionGenAiSession = 'continueDefinitionGenAiSession',
     deleteDefinitionGenAiSession = 'deleteDefinitionGenAiSession',
+    generateStrategicReport = 'generateStrategicReport',
+    generateImplementationReport = 'generateImplementationReport',
+    getProductReports = 'getProductReports',
 
     // Analytics
     logPaymentError = 'logPaymentError',
     listPaymentErrorAnalytics = 'listPaymentErrorAnalytics',
+    getConcurrentUsersMetrics = 'getConcurrentUsersMetrics',
 
     // Architecture
     getArchitecture = 'getArchitecture',
@@ -85,6 +89,7 @@ export enum CaseName {
     listUserEntitlements = 'listUserEntitlements',
     checkFeatureAvailability = 'checkFeatureAvailability',
     getFeatureUsage = 'getFeatureUsage',
+    getFeatureLimitNotifications = 'getFeatureLimitNotifications',
 
     // Feedback
     submitAppFeedback = 'submitAppFeedback',
@@ -130,6 +135,13 @@ export enum CaseName {
     copyProductAsTemplate = 'copyProductAsTemplate',
     copyTemplateAsProduct = 'copyTemplateAsProduct',
 
+    // Product Transfer
+    requestProductTransfer = 'requestProductTransfer',
+    acceptProductTransfer = 'acceptProductTransfer',
+    declineProductTransfer = 'declineProductTransfer',
+    cancelProductTransfer = 'cancelProductTransfer',
+    listPendingProductTransfers = 'listPendingProductTransfers',
+
     // Team
     listTeamsForUser = 'listTeamsForUser',
     getTeam = 'getTeam',
@@ -158,14 +170,27 @@ export enum CaseName {
     renumberUserStories = 'renumberUserStories',
 
     // Invoice
+    listInvoicesAdmin = 'listInvoicesAdmin',
     listInvoices = 'listInvoices',
     getInvoice = 'getInvoice',
+    fetchInvoicePdf = 'fetchInvoicePdf',
     syncInvoices = 'syncInvoices',
+    syncAllInvoices = 'syncAllInvoices',
+    listBillingHistory = 'listBillingHistory',
+    listBillingHistoryAdmin = 'listBillingHistoryAdmin',
+
+    // Refund
+    fetchCreditNotePdf = 'fetchCreditNotePdf',
 
     // Subscription
     enableTeamBilling = 'enableTeamBilling',
     getTeamBillingStatus = 'getTeamBillingStatus',
     updateTeamSeatCount = 'updateTeamSeatCount',
+    previewTeamBilling = 'previewTeamBilling',
+    disableTeamBilling = 'disableTeamBilling',
+    updateTeamPaymentMethod = 'updateTeamPaymentMethod',
+    applySubscriberDiscount = 'applySubscriberDiscount',
+    removeSubscriberDiscount = 'removeSubscriberDiscount',
     deleteAllSubscriptions = 'deleteAllSubscriptions',
     syncSubscriptionOut = 'syncSubscriptionOut',
     syncSubscriptionIn = 'syncSubscriptionIn',
@@ -199,12 +224,29 @@ export enum CaseName {
     updateScheduledTask = 'updateScheduledTask',
     deleteScheduledTask = 'deleteScheduledTask',
 
+    // Revision & Versioning
+    listRevisions = 'listRevisions',
+    listProductRevisions = 'listProductRevisions',
+    getLatestRevision = 'getLatestRevision',
+    getRevision = 'getRevision',
+    undoRevision = 'undoRevision',
+    redoRevision = 'redoRevision',
+    bumpMinorVersion = 'bumpMinorVersion',
+    bumpMajorVersion = 'bumpMajorVersion',
+
+    // Snapshot
+    createProductSnapshot = 'createProductSnapshot',
+    listProductSnapshots = 'listProductSnapshots',
+    getProductSnapshot = 'getProductSnapshot',
+    getSnapshotDiff = 'getSnapshotDiff',
+
     // Test
     test = 'test',
 
     // Use Case
     listUseCases = 'listUseCases',
     listUseCaseExecutions = 'listUseCaseExecutions',
+    purgeUseCaseExecutions = 'purgeUseCaseExecutions',
 
     // User
     verifyPasswordReset = 'verifyPasswordReset',

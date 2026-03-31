@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { areaVisibilitySchema } from './area-visibility';
 
 /**
  * Data Transfer Object for area entity
@@ -40,11 +39,6 @@ export const areaDtoSchema = z.object({
      */
     updatedAt: z.date(),
     
-    /**
-     * Visibility control (e.g. hide areas still under development)
-     */
-    visibility: areaVisibilitySchema.optional(),
-
     /**
      * Sort order for display purposes
      */

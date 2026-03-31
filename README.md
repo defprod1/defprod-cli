@@ -49,6 +49,31 @@ The CLI stores configuration in `~/.config/defprod/cli.json`. Run `defprod` for 
 | `defprodApiUrl`    | DefProd API base URL                                                         | `https://api.defprod.one/api/v1` |
 | `currentProduct`   | Default product ID to use                                                    | —                                |
 | `strictMode`       | Disable fuzzy matching                                                       | `false`                          |
+| `proxy`            | HTTP proxy configuration object (see below)                                  | —                                |
+
+### Proxy Configuration
+
+To route all CLI requests through an HTTP proxy (common in corporate environments), add a `proxy` object:
+
+```json
+{
+    "proxy": {
+        "url": "http://proxy.corp.com:8080",
+        "username": "user",
+        "password": "pass"
+    }
+}
+```
+
+| Field            | Description                                        | Required |
+|------------------|----------------------------------------------------|----------|
+| `proxy.url`      | Proxy URL (e.g. `http://proxy.corp.com:8080`)      | Yes      |
+| `proxy.username` | Proxy authentication username                      | No       |
+| `proxy.password` | Proxy authentication password                      | No       |
+
+Set proxy fields via commands: `/config set proxy.url http://proxy.corp.com:8080`.
+
+When no `proxy` config is set, the CLI honours the standard `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` environment variables.
 
 All fields are optional. You can also use environment variables:
 
@@ -99,6 +124,7 @@ $ defprod "Create a user story for login with 2FA"
 - `/list areas` - List areas
 - `/list architecture` - List architecture
 - `/list components` - List components
+- `/list templates` - List templates
 - `/list users` - List users
 
 Options:
@@ -110,6 +136,7 @@ Options:
 - `/view product` - View current product
 - `/view story <id|name|query>` - View a user story
 - `/view area <id|name|query>` - View an area
+- `/view template <id|name|#>` - View a template
 - `/view architecture` - View architecture
 
 Options:
@@ -146,33 +173,42 @@ Commands without a `/` prefix are interpreted as natural language and processed 
 ### Set product context
 
 ```bash
-> /product list
+[Democrify]> /product list
 1. DefProd
 2. Democrify
-> /product set defprod
+[DefProd]> /product set defprod
 Current product: DefProd (PRODUCT-1234)
 ```
 
 ### List entities
 
 ```bash
-> /list stories
-USR-42  User Login
-USR-43  Password Reset
-USR-44  Admin Login
+[DefProd]> /list stories
+#       ID              Title
+─────────────────────────────────────────────────
+1.      USR-42  User Login
+2.      USR-43  Password Reset
+3.      USR-44  Admin Login
 > /list stories --filter login
-USR-42  User Login
-USR-44  Admin Login
+[DefProd]> /list stories
+#       ID              Title
+─────────────────────────────────────────────────
+1.      USR-42  User Login
+3.      USR-44  Admin Login
 ```
 
 ### View entities
 
 ```bash
-> /view story "user login"
-Found 1 match:
-USR-42  User Login
-Title: User Login
-Description: Allows a user to log in with email/password...
+[DefProd]> /view story "subscription change"
+Title: System enforces subscription change rules to prevent invalid state transitions
+ID: PAY-38
+Description: As a system, I want to enforce a state-machine-based rule engine that determines valid subscription actions based on current status, pending changes, and target plan so that users cannot make invalid subscription transitions.
+Acceptance Criteria:
+  - Rule engine determines valid actions based on current subscription state
+  - Rule engine considers pending changes (e.g. pending downgrade) when evaluating allowed actions
+  - Invalid transitions are blocked with clear error messages
+  - Rules are shared between frontend and backend via defprod-common
 ```
 
 ### Natural language creation

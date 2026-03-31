@@ -1,7 +1,8 @@
 import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliRpcClient } from '../../services/cli-rpc.client';
 import { CliConfigService } from '../../services/cli-config.service';
-import { CaseName, AreaDto } from '@defprod/defprod-common';
+import { CaseName } from '@defprod/defprod-common';
+import type { AreaDto } from '@defprod/defprod-common';
 
 /**
  * Implementation for reordering stories.

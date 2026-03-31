@@ -9,6 +9,7 @@ await build({
     outfile: 'dist/main.js',
     banner: { js: '#!/usr/bin/env node' },
     tsconfig: 'tsconfig.json',
+    external: ['undici'],
 });
 
 console.log('Build complete: dist/main.js');

@@ -12,7 +12,7 @@ export async function productListImpl(ctx: CliExecutionContext): Promise<void> {
     try {
         const products: any[] = await rpcClient.request({
             name: CaseName.listProducts,
-            input: undefined
+            input: { isTemplate: false }
         });
 
         if ( products.length === 0 ) {

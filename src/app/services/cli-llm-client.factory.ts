@@ -52,11 +52,11 @@ export class CliLlmClientFactory {
                 return 'claude-3-opus-20240229';
             case 'gemini':
             case 'google':
-                return 'gemini-2.5-flash';
+                return 'gemini-3.1-pro-preview';
             case 'perplexity':
                 return 'sonar';
             default:
-                return 'gemini-2.5-flash';
+                return 'gemini-3.1-pro-preview';
         }
     }
 

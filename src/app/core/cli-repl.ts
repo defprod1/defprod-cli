@@ -44,7 +44,7 @@ export class CliRepl {
     public async start(): Promise<void> {
 
         console.log('DefProd CLI Agent');
-        console.log('Type "/exit" or press Ctrl+D to quit\n');
+        console.log('Type "/help" for available commands, "/exit" or press Ctrl+D to quit\n');
 
         // Load product name if we have a product ID but no name
         const currentProduct: string | undefined = CliConfigService.getCurrentProduct();
@@ -113,7 +113,7 @@ export class CliRepl {
         // Listen for keypress events on stdin
         if ( process.stdin.isTTY ) {
             readline.emitKeypressEvents(process.stdin);
-            
+
             process.stdin.on('keypress', (str: string, key: any) => {
                 if ( key && key.name === 'space' ) {
                     // Get current line from readline
@@ -508,7 +508,7 @@ export class CliRepl {
 
         // Special handling for config set (third argument is config key)
         if ( node.name === 'config' && parts.length >= 2 && parts[1].toLowerCase() === 'set' ) {
-            const keys: string[] = ['aiProvider', 'aiProviderApiKey', 'aiModel', 'defprodApiKey', 'defprodApiUrl', 'currentProduct', 'defaultProduct', 'strictMode', 'backendCaFiles'];
+            const keys: string[] = ['aiProvider', 'aiProviderApiKey', 'aiModel', 'defprodApiKey', 'defprodApiUrl', 'currentProduct', 'defaultProduct', 'strictMode', 'backendCaFiles', 'proxy.url', 'proxy.username', 'proxy.password'];
             completions.push(...keys);
         }
 

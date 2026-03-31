@@ -22,5 +22,11 @@ export async function configShowImpl(ctx: CliExecutionContext): Promise<void> {
         console.log(`Current Product: not set`);
     }
     console.log(`Strict Mode: ${config.strictMode ? 'enabled' : 'disabled'}`);
+    if ( config.proxy?.url ) {
+        const authLabel: string = config.proxy.username ? ` (auth: ${config.proxy.username})` : '';
+        console.log(`Proxy: ${config.proxy.url}${authLabel}`);
+    } else {
+        console.log(`Proxy: not set`);
+    }
 }
 

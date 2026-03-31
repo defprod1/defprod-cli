@@ -233,11 +233,11 @@ export class CliInitService {
             case 'anthropic':
                 return 'claude-3-5-sonnet-20241022';
             case 'gemini':
-                return 'gemini-2.5-flash';
+                return 'gemini-3.1-pro-preview';
             case 'perplexity':
                 return 'llama-3.1-sonar-large-128k-online';
             default:
-                return 'gemini-2.5-flash';
+                return 'gemini-3.1-pro-preview';
         }
     }
 

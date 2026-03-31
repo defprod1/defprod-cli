@@ -1,6 +1,6 @@
 {
     "name": "@defprod/cli",
-    "version": "0.1.4",
+    "version": "0.1.6",
     "description": "DefProd CLI - Command-line interface for DefProd product definitions",
     "bin": {
         "defprod": "dist/main.js"
@@ -42,6 +42,7 @@
         "remark-gfm": "^4.0.1",
         "remark-parse": "^11.0.0",
         "remark-rehype": "^11.1.2",
+        "undici": "^7.0.0",
         "unified": "^11.0.5",
         "zod": "^4.1.13"
     },
