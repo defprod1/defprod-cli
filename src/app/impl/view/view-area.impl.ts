@@ -73,7 +73,7 @@ async function viewByNumber(
         }
 
         const selectedEntity: any = entities[index];
-        const entityId: string = selectedEntity._id || selectedEntity.displayId;
+        const entityId: string = selectedEntity._id || selectedEntity.key;
 
         if ( ! entityId ) {
             throw new Error(`Selected ${entityType} has no ID.`);
@@ -155,26 +155,30 @@ async function viewFuzzy(
             input: { productId: productId }
         });
 
-        // Use LLM to find the best match
-        const context: string = `Available ${entityType}:\n${JSON.stringify(allEntities, null, 2)}`;
-        const query: string = `Find the ${entityType} that best matches: "${identifier}"`;
+        // Use LLM to find the best match. Best-effort: if the LLM is not
+        // configured (e.g. CI/automation with no AI provider key) we still
+        // fall back to local text matching below.
+        try {
+            const context: string = `Available ${entityType}:\n${JSON.stringify(allEntities, null, 2)}`;
+            const query: string = `Find the ${entityType} that best matches: "${identifier}"`;
+            await llmService.processCommand(query, context);
+        } catch {
+            // No LLM available — proceed with local matching.
+        }
 
-        await llmService.processCommand(query, context);
-
-        // Try to extract the matched entity from LLM response
-        // For now, do a simple text search
+        // Local text-based matching is the actual selector.
         const matched = findBestMatch(allEntities, identifier, entityType);
 
         if ( matched.length === 0 ) {
             throw new Error(`No ${entityType} found matching "${identifier}"`);
         } else if ( matched.length === 1 ) {
             // View the single match
-            await viewStrict(entityType, matched[0]._id || matched[0].displayId, productId, options);
+            await viewStrict(entityType, matched[0]._id || matched[0].key, productId, options);
         } else {
             // Multiple matches - prompt user
             console.log(`Found ${matched.length} matches:`);
             matched.forEach((item: any, index: number) => {
-                const id: string = item.displayId || item._id || 'N/A';
+                const id: string = item.key || item._id || 'N/A';
                 const title: string = item.title || item.name || 'N/A';
                 console.log(`${index + 1}. ${id} - ${title}`);
             });
@@ -197,7 +201,7 @@ function findBestMatch(entities: any[], query: string, entityType: string): any[
         const searchableText: string = (
             (entity.title || '') + ' ' +
             (entity.name || '') + ' ' +
-            (entity.displayId || '') + ' ' +
+            (entity.key || '') + ' ' +
             (entity._id || '')
         ).toLowerCase();
 
@@ -216,7 +220,7 @@ function formatEntityOutput(entity: any, entityType: string): void {
 
     if ( entityType === 'area' || entityType === 'areas' ) {
         console.log(`Name: ${entity.name || 'N/A'}`);
-        console.log(`ID: ${entity.displayId || entity._id || 'N/A'}`);
+        console.log(`ID: ${entity.key || entity._id || 'N/A'}`);
         if ( entity.description ) {
             console.log(`Description: ${entity.description}`);
         }

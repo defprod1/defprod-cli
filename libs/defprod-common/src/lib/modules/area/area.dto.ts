@@ -12,7 +12,7 @@ export const areaDtoSchema = z.object({
     /**
      * Display ID for the area
      */
-    displayId: z.string(),
+    key: z.string(),
     
     /**
      * The name of the area

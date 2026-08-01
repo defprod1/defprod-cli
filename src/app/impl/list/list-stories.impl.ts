@@ -55,7 +55,7 @@ function formatTableOutput(data: any[], entityType: string): void {
     console.log('─'.repeat(60));
     data.forEach((item: any, index: number) => {
         const number: number = index + 1;
-        const id: string = item.displayId || item._id || 'N/A';
+        const id: string = item.key || item._id || 'N/A';
         const title: string = item.title || 'N/A';
         console.log(`${number}.\t${id}\t${title}`);
     });

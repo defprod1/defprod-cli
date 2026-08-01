@@ -10,12 +10,15 @@ interface BaseMetadata {
     dataCategory: DataCategory;
     status: number;
     timestamp: string;
+    /** Id of the useCaseExecution record this call produced (ADMIN-79 correlation). */
+    executionId?: string;
 }
 
 interface NoDataMetadata {
     dataCategory: DataCategory.none;
     status: number;
     timestamp: string;
+    executionId?: string;
 }
 
 export interface NoDataCaseResponse {
@@ -26,6 +29,7 @@ interface SingleDataMetadata {
     dataCategory: DataCategory.single;
     status: number;
     timestamp: string;
+    executionId?: string;
 }
 
 export interface SingleCaseResponse<T> {

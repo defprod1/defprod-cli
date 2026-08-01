@@ -43,23 +43,40 @@ function formatBriefOutput(brief: any): void {
         console.log(`Description: ${brief.description}\n`);
     }
 
+    if ( brief.positioning ) {
+        console.log(`Positioning:`);
+        console.log(`${brief.positioning}\n`);
+    }
+
     if ( brief.problem ) {
-        if ( brief.problem.statement ) {
-            console.log(`Problem Statement:`);
-            console.log(`${brief.problem.statement}\n`);
+        if ( brief.problem.summary ) {
+            console.log(`Problem Summary:`);
+            console.log(`${brief.problem.summary}\n`);
         }
         if ( brief.problem.context ) {
             console.log(`Problem Context:`);
             console.log(`${brief.problem.context}\n`);
         }
+        if ( brief.problem.impact ) {
+            console.log(`Problem Impact:`);
+            console.log(`${brief.problem.impact}\n`);
+        }
     }
 
     if ( brief.requirements && Array.isArray(brief.requirements) && brief.requirements.length > 0 ) {
         console.log(`Requirements:`);
-        brief.requirements.forEach((req: any, index: number) => {
-            const id: string = req.displayId || req._id || `${index + 1}`;
-            const desc: string = req.description || req.text || 'N/A';
-            console.log(`  ${id}: ${desc}`);
+        brief.requirements.forEach((req: any) => {
+            const heading: string = [
+                req.id ? `${req.id}: ` : '',
+                req.title || '',
+                req.priority ? ` [${req.priority}]` : ''
+            ].join('').trim();
+            if ( heading ) {
+                console.log(`  ${heading}`);
+            }
+            if ( req.description ) {
+                console.log(`    ${req.description}`);
+            }
         });
         console.log('');
     }
@@ -67,8 +84,12 @@ function formatBriefOutput(brief: any): void {
     if ( brief.users && Array.isArray(brief.users) && brief.users.length > 0 ) {
         console.log(`Users:`);
         brief.users.forEach((user: any, index: number) => {
-            const persona: string = user.persona || 'N/A';
-            console.log(`  ${index + 1}. ${persona}`);
+            const personaTitle: string = user.title || 'N/A';
+            const personaDescription: string = user.description || '';
+            console.log(`  ${index + 1}. ${personaTitle}`);
+            if ( personaDescription ) {
+                console.log(`     ${personaDescription}`);
+            }
             if ( user.goals && Array.isArray(user.goals) && user.goals.length > 0 ) {
                 console.log(`     Goals:`);
                 user.goals.forEach((goal: string) => {
@@ -124,6 +145,21 @@ function formatBriefOutput(brief: any): void {
         if ( brief.aesthetics.colorScheme ) {
             console.log(`  Color Scheme: ${brief.aesthetics.colorScheme}`);
         }
+        console.log('');
+    }
+
+    if ( brief.references && Array.isArray(brief.references) && brief.references.length > 0 ) {
+        console.log(`References:`);
+        brief.references.forEach((reference: any, index: number) => {
+            const type: string = reference.type ? ` [${reference.type}]` : '';
+            console.log(`  ${index + 1}.${type}`);
+            if ( reference.description ) {
+                console.log(`     ${reference.description}`);
+            }
+            if ( reference.url ) {
+                console.log(`     ${reference.url}`);
+            }
+        });
         console.log('');
     }
 }

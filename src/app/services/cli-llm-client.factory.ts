@@ -49,7 +49,7 @@ export class CliLlmClientFactory {
             case 'openai':
                 return 'gpt-4o';
             case 'anthropic':
-                return 'claude-3-opus-20240229';
+                return 'claude-sonnet-4-6';
             case 'gemini':
             case 'google':
                 return 'gemini-3.1-pro-preview';

@@ -32,7 +32,7 @@ export async function reorderStoriesImpl(ctx: CliExecutionContext): Promise<void
     // Sort areas by order
     const sortedAreas: AreaDto[] = areas.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-    // Find area by number (1-based) or displayId
+    // Find area by number (1-based) or key
     let area: AreaDto | undefined;
     const areaNumber: number = parseInt(areaIdentifier, 10);
 
@@ -44,12 +44,12 @@ export async function reorderStoriesImpl(ctx: CliExecutionContext): Promise<void
         }
         area = sortedAreas[index];
     } else {
-        // User provided a displayId (case-insensitive)
+        // User provided a key (case-insensitive)
         const areaDisplayIdLower: string = areaIdentifier.toLowerCase();
-        area = sortedAreas.find(a => a.displayId?.toLowerCase() === areaDisplayIdLower);
+        area = sortedAreas.find(a => a.key?.toLowerCase() === areaDisplayIdLower);
 
         if ( ! area ) {
-            throw new Error(`Area not found: ${areaIdentifier}. Available areas: ${sortedAreas.map(a => a.displayId || a._id).join(', ')}`);
+            throw new Error(`Area not found: ${areaIdentifier}. Available areas: ${sortedAreas.map(a => a.key || a._id).join(', ')}`);
         }
     }
 
@@ -76,7 +76,7 @@ export async function reorderStoriesImpl(ctx: CliExecutionContext): Promise<void
             }
         });
 
-        const areaDisplay: string = area.displayId || area._id;
+        const areaDisplay: string = area.key || area._id;
         console.log(`User story moved from position ${fromUser} to position ${toUser} in area ${areaDisplay}`);
     } catch ( error: any ) {
         throw new Error(`Failed to reorder user stories: ${error.message}`);

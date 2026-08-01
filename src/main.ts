@@ -15,7 +15,13 @@ program
     .version('1.0.0')
     .option('--strict', 'Enable strict mode (no fuzzy matching)')
     .option('--json', 'Output in JSON format')
-    .allowExcessArguments(false);
+    // Allow positional args — they form the one-shot command (e.g. "/help")
+    // when joined back together below.
+    .allowExcessArguments(true)
+    // Allow subcommand-specific options (e.g. --filter, --out, -f, -j) to
+    // pass through to the inner CommandParser without commander rejecting
+    // them as unknown at the top level.
+    .allowUnknownOption(true);
 
 // Handle one-shot commands or start REPL
 async function main() {
@@ -40,14 +46,31 @@ async function main() {
         return;
     }
 
-    // Parse command line arguments
-    program.parse(args);
+    // Parse command line arguments. `args` is already `process.argv.slice(2)`
+    // (user args, not node/script), so use `from: 'user'` so commander treats
+    // every entry as an argument rather than swallowing the first two as
+    // node/script names.
+    program.parse(args, { from: 'user' });
     const options = program.opts();
     const commandArgs: string[] = program.args;
 
+    // Re-append global flags to the command string so the inner CommandParser
+    // can see them (commander consumes them from `program.args`, but the
+    // CommandParser also treats them as global options on the rootCommand).
+    const flags: string[] = [];
+    if ( options.json ) {
+        flags.push('--json');
+    }
+    if ( options.strict ) {
+        flags.push('--strict');
+    }
+    if ( options.out ) {
+        flags.push('--out', String(options.out));
+    }
+
     // If command starts with /, it's a CLI command
     // Otherwise, it's a natural language command
-    const input: string = commandArgs.join(' ');
+    const input: string = [...commandArgs, ...flags].join(' ');
 
     if ( input.startsWith('/') ) {
         // CLI command

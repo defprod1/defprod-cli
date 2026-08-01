@@ -67,11 +67,12 @@ export class CliOpenAiClient implements CliLlmClient {
         // OpenAI doesn't provide a simple listModels endpoint in the SDK
         // Return common models
         return [
+            'gpt-5.4',
+            'gpt-5.4-mini',
+            'gpt-5.4-nano',
+            'gpt-5.4-pro',
             'gpt-4o',
-            'gpt-4-turbo',
-            'gpt-4',
-            'gpt-3.5-turbo',
-            'gpt-3.5-turbo-16k'
+            'gpt-4o-mini'
         ];
     }
 

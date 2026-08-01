@@ -86,8 +86,9 @@ export class CliPerplexityClient implements CliLlmClient {
         return [
             'sonar',
             'sonar-pro',
-            'sonar-online',
-            'sonar-pro-online'
+            'sonar-reasoning',
+            'sonar-reasoning-pro',
+            'sonar-deep-research'
         ];
     }
 

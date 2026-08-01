@@ -73,7 +73,7 @@ async function searchStrict(
             } else {
                 console.log(`Found ${results.length} result(s) for "${query}":\n`);
                 results.forEach((result: any) => {
-                    const id: string = result.displayId || result._id || 'N/A';
+                    const id: string = result.key || result._id || 'N/A';
                     const name: string = result.title || result.name || 'N/A';
                     console.log(`[${result.type.toUpperCase()}] ${id}: ${name}`);
                 });

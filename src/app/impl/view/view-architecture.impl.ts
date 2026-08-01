@@ -20,10 +20,22 @@ export async function viewArchitectureImpl(ctx: CliExecutionContext): Promise<vo
             input: { productId: currentProduct }
         });
 
+        // Also fetch the tree so /view architecture shows the elements, not
+        // just the architecture container metadata (CLI-13 AC2).
+        let tree: any | undefined;
+        try {
+            tree = await rpcClient.request({
+                name: CaseName.getArchitectureTree,
+                input: { architectureId: architecture._id }
+            });
+        } catch {
+            tree = undefined;
+        }
+
         if ( ctx.options.json ) {
-            console.log(JSON.stringify(architecture, null, 2));
+            console.log(JSON.stringify({ ...architecture, tree }, null, 2));
         } else {
-            formatArchitectureOutput(architecture);
+            formatArchitectureOutput(architecture, tree);
         }
     } catch ( error: any ) {
         throw new Error(`Failed to view architecture: ${error.message}`);
@@ -33,7 +45,7 @@ export async function viewArchitectureImpl(ctx: CliExecutionContext): Promise<vo
 /**
  * Format architecture output.
  */
-function formatArchitectureOutput(architecture: any): void {
+function formatArchitectureOutput(architecture: any, tree?: any): void {
 
     if ( ! architecture ) {
         console.log('No architecture found for this product.');
@@ -50,6 +62,26 @@ function formatArchitectureOutput(architecture: any): void {
     }
     if ( architecture.updatedAt ) {
         console.log(`Updated: ${architecture.updatedAt}`);
+    }
+    if ( tree ) {
+        console.log('');
+        console.log('Elements:');
+        printTree(tree, 0);
+    }
+}
+
+function printTree(node: any, depth: number): void {
+    if ( ! node ) {
+        return;
+    }
+    const indent: string = '  '.repeat(depth);
+    const name: string = node.name || 'N/A';
+    const type: string = node.type ? ` [${node.type}]` : '';
+    console.log(`${indent}- ${name}${type}`);
+    const children: any[] = node.children || [];
+    const sorted: any[] = [...children].sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+    for ( const child of sorted ) {
+        printTree(child, depth + 1);
     }
 }
 
