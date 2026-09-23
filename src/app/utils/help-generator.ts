@@ -89,6 +89,7 @@ export class HelpGenerator {
         lines.push('  /product set defprod');
         lines.push('  /list stories');
         lines.push('  /list stories --filter login');
+        lines.push('  /list stories --area CORE');
         lines.push('  /view story "user login"');
         lines.push('  /search "authentication"');
         lines.push('  Create a user story for login with 2FA\n');
@@ -228,6 +229,11 @@ export class HelpGenerator {
                 const childPath: string = fullPath + ' ' + child.name;
                 const childDesc: string = child.description || '';
                 lines.push(`  ${childPath.padEnd(30)} ${childDesc}`);
+                // Options specific to this subcommand (e.g. /list stories --area)
+                for ( const option of child.globalOptions ?? [] ) {
+                    const aliasStr: string = option.alias ? `, -${option.alias}` : '';
+                    lines.push(`      ${(this.formatOption(option) + aliasStr).padEnd(25)} ${option.description ?? ''}`.trimEnd());
+                }
             }
             lines.push('');
         }
@@ -327,7 +333,7 @@ export class HelpGenerator {
         let optionStr: string = '--' + option.name;
         if ( option.takesValue ) {
             // Extract value name from option name or use generic
-            const valueName: string = option.name === 'filter' ? '<query>' : '<value>';
+            const valueName: string = option.valueName ?? (option.name === 'filter' ? '<query>' : '<value>');
             optionStr += ` ${valueName}`;
         }
         // Note: Aliases are shown separately in help text if needed

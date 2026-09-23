@@ -28,6 +28,10 @@ describe('HelpGenerator', () => {
             const helpText: string = HelpGenerator.generateGeneralHelp();
             expect(helpText).toContain('Natural Language Commands');
         });
+        it('should show the --area option under /list stories', () => {
+            const helpText: string = HelpGenerator.generateGeneralHelp();
+            expect(helpText).toMatch(/\/list stories[^\n]*\n\s+Options:\n\s+--area <area-key>, -a/);
+        });
         it('should include examples', () => {
             const helpText: string = HelpGenerator.generateGeneralHelp();
             expect(helpText).toContain('Examples:');
@@ -76,6 +80,12 @@ describe('HelpGenerator', () => {
                 'list',
             ]);
             expect(helpText).toContain('Options:');
+        });
+        it('should show subcommand-specific options with their value name', () => {
+            const helpText: string = HelpGenerator.generateDetailedHelp([
+                'list',
+            ]);
+            expect(helpText).toMatch(/\/list stories[^\n]*\n\s+--area <area-key>, -a/);
         });
         it('should return error message for unknown command', () => {
             const helpText: string = HelpGenerator.generateDetailedHelp([

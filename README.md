@@ -129,6 +129,7 @@ $ defprod "Create a user story for login with 2FA"
 
 Options:
 - `--filter <query>` - Filter results by keyword
+- `--area <area-key>` - Only list stories in the area with this key (`/list stories`)
 - `--json` - Output in JSON format
 
 ### Viewing Entities

@@ -134,6 +134,11 @@ export interface CliOption {
     takesValue: boolean;
 
     /**
+     * The value name to display in help text (e.g., "<area-key>"), only if takesValue = true
+     */
+    valueName?: string;
+
+    /**
      * Optional parse function to convert the option value (only if takesValue = true)
      */
     parse?: (raw: string) => any;
