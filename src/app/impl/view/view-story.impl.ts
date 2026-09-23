@@ -3,6 +3,7 @@ import { CliRpcClient } from '../../services/cli-rpc.client';
 import { CliLlmService } from '../../services/cli-llm.service';
 import { CliConfigService } from '../../services/cli-config.service';
 import { CaseName } from '@defprod/defprod-common';
+import { findByKey, looksLikeEntityId } from '../../utils/find-by-key.util';
 
 /**
  * Implementation for viewing story.
@@ -28,9 +29,33 @@ export async function viewStoryImpl(ctx: CliExecutionContext): Promise<void> {
     }
 
     if ( strictMode ) {
-        await viewStrict('story', identifier, currentProduct, ctx.options);
+        const storyId: string = await resolveKeyToId(identifier, currentProduct);
+        await viewStrict('story', storyId, currentProduct, ctx.options);
     } else {
         await viewFuzzy('story', identifier, currentProduct, ctx.options, llmService);
+    }
+}
+
+/**
+ * Resolve an exact, case-insensitive story key (e.g. `CORE-01`) to its ID.
+ * An identifier shaped like a story ID, or one matching no key, is returned unchanged.
+ */
+async function resolveKeyToId(identifier: string, productId: string): Promise<string> {
+
+    if ( looksLikeEntityId(identifier, 'STORY') ) {
+        return identifier;
+    }
+
+    try {
+        const rpcClient: CliRpcClient = new CliRpcClient();
+        const entities: any[] = await rpcClient.request({
+            name: CaseName.listUserStories,
+            input: { productId: productId }
+        });
+
+        return findByKey(entities, identifier)?._id ?? identifier;
+    } catch ( error: any ) {
+        throw new Error(`Failed to view story: ${error.message}`);
     }
 }
 
@@ -155,6 +180,13 @@ async function viewFuzzy(
             input: { productId: productId }
         });
 
+        // An exact key match is unambiguous — view it without partial matching.
+        const keyMatch: any = findByKey(allEntities, identifier);
+        if ( keyMatch ) {
+            await viewStrict(entityType, keyMatch._id, productId, options);
+            return;
+        }
+
         // Use LLM to find the best match. Best-effort: if the LLM is not
         // configured (e.g. CI/automation with no AI provider key) we still
         // fall back to local text matching below.
@@ -221,7 +253,11 @@ function formatEntityOutput(entity: any, entityType: string): void {
 
     if ( entityType === 'story' || entityType === 'stories' ) {
         console.log(`Title: ${entity.title || 'N/A'}`);
-        console.log(`ID: ${entity.key || entity._id || 'N/A'}`);
+        console.log(`Key: ${entity.key || 'N/A'}`);
+        console.log(`ID: ${entity._id || 'N/A'}`);
+        console.log(`Surface: ${entity.surface || 'N/A'}`);
+        console.log(`Priority: ${entity.priority || 'N/A'}`);
+        console.log(`Status: ${entity.status || 'N/A'}`);
         if ( entity.description ) {
             console.log(`Description: ${entity.description}`);
         }

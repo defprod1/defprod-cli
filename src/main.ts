@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { CLI_VERSION } from './app/cli-version';
 import { CliRepl } from './app/core/cli-repl';
 import { CliRpcClient } from './app/services/cli-rpc.client';
 import { CliLlmService } from './app/services/cli-llm.service';
@@ -12,7 +13,7 @@ const program = new Command();
 program
     .name('defprod')
     .description('DefProd CLI - Command-line interface for DefProd product definitions')
-    .version('1.0.0')
+    .version(CLI_VERSION)
     .option('--strict', 'Enable strict mode (no fuzzy matching)')
     .option('--json', 'Output in JSON format')
     // Allow positional args — they form the one-shot command (e.g. "/help")

@@ -272,13 +272,12 @@ describe('CommandParser', () => {
                     },
                 ],
             };
-            try {
-                await parser.parseAndExecute('/unknown', root);
-                fail('Should have thrown');
-            } catch (error: any) {
-                expect(error).toBeInstanceOf(CommandParseError);
-                expect(error.message).toContain('Unknown command');
-            }
+            // `fail()` is a Jest global that vitest does not define, and inside this try
+            // the resulting ReferenceError was caught by the catch below — so a
+            // parseAndExecute that stopped throwing would not have been reported honestly.
+            const error: any = await parser.parseAndExecute('/unknown', root).catch((e: any) => e);
+            expect(error).toBeInstanceOf(CommandParseError);
+            expect(error.message).toContain('Unknown command');
         });
     });
     describe('Real command tree integration', () => {
@@ -288,17 +287,32 @@ describe('CommandParser', () => {
                 parser.parseAndExecute('/help', rootCommand)
             ).resolves.not.toThrow();
         });
-        it('should parse /list stories command', async () => {
-            // This should not throw - list stories command exists
-            await expect(
-                parser.parseAndExecute('/list stories', rootCommand)
-            ).resolves.not.toThrow();
+        // `/help` above is safe to execute: it renders locally. `/list stories`
+        // and `/product list` are DATA commands — executing them fires a real
+        // `listUserStories` / `listProducts` RPC at a live backend, which has no
+        // place in the server-free unit lane (see vitest.config.ts). Both specs
+        // were quarantined for an unrelated ESM reason until INT0066 retired the
+        // quarantine, so this never surfaced. Their own comments state the
+        // intent — the command PATH EXISTS in the real tree — so assert exactly
+        // that, by traversal, with no execution. End-to-end behaviour of these
+        // two commands is the integration lane's job (tests/areas/**).
+        const resolvePath = (path: string[]): CliCommandNode | null => {
+            let node: CliCommandNode | null = rootCommand;
+            for ( const name of path ) {
+                node = node?.children?.find((c) => c.name === name) ?? null;
+                if ( !node ) return null;
+            }
+            return node;
+        };
+        it('should expose a /list stories command in the real tree', () => {
+            const node = resolvePath(['list', 'stories']);
+            expect(node).not.toBeNull();
+            expect(node?.next).toBeDefined();
         });
-        it('should parse /product list command', async () => {
-            // This should not throw - product list command exists
-            await expect(
-                parser.parseAndExecute('/product list', rootCommand)
-            ).resolves.not.toThrow();
+        it('should expose a /product list command in the real tree', () => {
+            const node = resolvePath(['product', 'list']);
+            expect(node).not.toBeNull();
+            expect(node?.next).toBeDefined();
         });
         it('should handle /help with argument', async () => {
             // This should not throw - help command accepts optional argument

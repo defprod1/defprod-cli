@@ -6,6 +6,10 @@ export enum CaseName {
     getAddressLookup = 'getAddressLookup',
 
     // Admin
+    detectClientErrorStorms = 'detectClientErrorStorms',
+    detectRequestRateStorm = 'detectRequestRateStorm',
+    mirrorRateLimitTally = 'mirrorRateLimitTally',
+    detectSecurityEvents = 'detectSecurityEvents',
     checkUserConsistency = 'checkUserConsistency',
     checkAllUsersConsistency = 'checkAllUsersConsistency',
     getAdminConfig = 'getAdminConfig',
@@ -63,16 +67,30 @@ export enum CaseName {
     // from the agent-generated change REPORTS directly above)
     createChange = 'createChange',
     listChanges = 'listChanges',
+    listTeamChanges = 'listTeamChanges',
     getChange = 'getChange',
+    getChangeHistory = 'getChangeHistory',
     patchChange = 'patchChange',
     startChangeStage = 'startChangeStage',
     finishChangeStage = 'finishChangeStage',
     cancelChangeStage = 'cancelChangeStage',
+    failChangeStage = 'failChangeStage',
     cancelChange = 'cancelChange',
     reopenChange = 'reopenChange',
     getEffectiveChangePipeline = 'getEffectiveChangePipeline',
     setChangeStageTimes = 'setChangeStageTimes',
+    assessChangeRisk = 'assessChangeRisk',
+    recordChangeDefect = 'recordChangeDefect',
+    confirmChangePipeline = 'confirmChangePipeline',
     deleteChange = 'deleteChange',
+
+    // Change analytics (docs/areas/changes/change-analytics-design.md) — aggregate
+    // reads over change records, plus the two writers that freeze them. Distinct
+    // again from the change REPORTS above: those narrate definition revisions, these
+    // measure delivery.
+    getChangeAnalytics = 'getChangeAnalytics',
+    rollupChangeAnalytics = 'rollupChangeAnalytics',
+    backfillChangeAnalytics = 'backfillChangeAnalytics',
 
     // CdRun (team-scoped CD deploy-run telemetry — reported by the pipeline,
     // read-only in the app; observation, never control)
@@ -89,6 +107,9 @@ export enum CaseName {
     patchRelease = 'patchRelease',
 
     // Analytics
+    applyRetentionPolicies = 'applyRetentionPolicies',
+    cleanupConcurrentUserSamples = 'cleanupConcurrentUserSamples',
+    sampleConcurrentUsers = 'sampleConcurrentUsers',
     logPaymentError = 'logPaymentError',
     listPaymentErrorAnalytics = 'listPaymentErrorAnalytics',
     getConcurrentUsersMetrics = 'getConcurrentUsersMetrics',
@@ -149,6 +170,7 @@ export enum CaseName {
     checkFeatureAvailability = 'checkFeatureAvailability',
     getFeatureUsage = 'getFeatureUsage',
     getFeatureLimitNotifications = 'getFeatureLimitNotifications',
+    cleanupExpiredFeatureUsage = 'cleanupExpiredFeatureUsage',
 
     // Feature Flags (release-readiness gating)
     getClientConfig = 'getClientConfig',
@@ -201,6 +223,10 @@ export enum CaseName {
     moveSubscriptionToCurrentPlanPrice = 'moveSubscriptionToCurrentPlanPrice',
     cancelPendingSubscriptionPriceMove = 'cancelPendingSubscriptionPriceMove',
     applyPendingPlanPriceMigrations = 'applyPendingPlanPriceMigrations',
+    detectBillingDrift = 'detectBillingDrift',
+    reissueInvoiceDocument = 'reissueInvoiceDocument',
+    reissueCreditNoteDocument = 'reissueCreditNoteDocument',
+    releaseHeldInvoice = 'releaseHeldInvoice',
     processScheduledPlanPricePublishes = 'processScheduledPlanPricePublishes',
     sendPlanPriceChangeReminderEmails = 'sendPlanPriceChangeReminderEmails',
 
@@ -226,6 +252,8 @@ export enum CaseName {
     copyProductAsTemplate = 'copyProductAsTemplate',
     copyTemplateAsProduct = 'copyTemplateAsProduct',
     linkProductToRepo = 'linkProductToRepo',
+    getProductQuotaLockState = 'getProductQuotaLockState',
+    confirmProductQuotaSelection = 'confirmProductQuotaSelection',
 
     // Product Transfer
     requestProductTransfer = 'requestProductTransfer',
@@ -244,6 +272,10 @@ export enum CaseName {
     getRepoTransferPreview = 'getRepoTransferPreview',
     getRepoTransferStatus = 'getRepoTransferStatus',
 
+
+    // Task
+    sweepStaleInstanceTasks = 'sweepStaleInstanceTasks',
+    recordInstanceHeartbeat = 'recordInstanceHeartbeat',
     // Team
     listTeamsForUser = 'listTeamsForUser',
     getTeam = 'getTeam',
@@ -278,6 +310,8 @@ export enum CaseName {
     listInvoicesAdmin = 'listInvoicesAdmin',
     listInvoices = 'listInvoices',
     getInvoice = 'getInvoice',
+    getInvoiceAdmin = 'getInvoiceAdmin',
+    listInvoiceDocumentVersions = 'listInvoiceDocumentVersions',
     fetchInvoicePdf = 'fetchInvoicePdf',
     syncInvoices = 'syncInvoices',
     syncAllInvoices = 'syncAllInvoices',
@@ -306,6 +340,7 @@ export enum CaseName {
     syncSubscriptionIn = 'syncSubscriptionIn',
     generateSubscriptionReport = 'generateSubscriptionReport',
     listSubscriptions = 'listSubscriptions',
+    getSubscriptionAdmin = 'getSubscriptionAdmin',
     reactivateSubscription = 'reactivateSubscription',
     createSetupIntent = 'createSetupIntent',
     updateSubscriptionPaymentMethod = 'updateSubscriptionPaymentMethod',
@@ -394,6 +429,7 @@ export enum CaseName {
     listApiKeys = 'listApiKeys',
     createApiKey = 'createApiKey',
     deleteApiKey = 'deleteApiKey',
+    renameApiKey = 'renameApiKey',
     pingApiKey = 'pingApiKey',
     createSyntheticUsers = 'createSyntheticUsers',
     deleteAllSyntheticUsers = 'deleteAllSyntheticUsers',

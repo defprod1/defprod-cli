@@ -1,4 +1,5 @@
-import { CaseName, DataCategory } from '@defprod/defprod-common';
+import { CaseName, CLIENT_TYPE_CLI, CLIENT_TYPE_HEADER, CLIENT_VERSION_HEADER, DataCategory } from '@defprod/defprod-common';
+import { CLI_VERSION } from '../cli-version';
 import type { CaseRequest, CaseOutputs, CaseResponse, SingleCaseResponse, ListCaseResponse } from '@defprod/defprod-common';
 import { EnvHttpProxyAgent, ProxyAgent, Dispatcher } from 'undici';
 import * as tls from 'tls';
@@ -102,7 +103,12 @@ export class CliRpcClient {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': this.apiKey
+                'x-api-key': this.apiKey,
+                // Identify this client so its activity is attributable to the CLI rather than
+                // being indistinguishable from direct API use (ANALYT-29). Descriptive only —
+                // the backend never authorises on it.
+                [CLIENT_TYPE_HEADER]: CLIENT_TYPE_CLI,
+                [CLIENT_VERSION_HEADER]: CLI_VERSION
             },
             body: JSON.stringify(caseRequest),
             dispatcher: this.dispatcher

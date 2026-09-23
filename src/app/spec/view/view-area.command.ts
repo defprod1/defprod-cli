@@ -7,13 +7,13 @@ import { viewAreaImpl } from '../../impl/view/view-area.impl';
 export const viewAreaCommand: CliCommandNode = {
 
     name: 'area',
-    description: 'View an area (by ID, name, or list number)',
+    description: 'View an area (by key, ID, name, or list number)',
 
     arguments: [
         {
             name: 'identifier',
-            valueName: '<id|name|#>',
-            description: 'Area identifier (ID, name, or list number)',
+            valueName: '<key|id|name|#>',
+            description: 'Area identifier (key, ID, name, or list number)',
             required: true,
             parse: (raw: string): string => {
                 // Strip quotes if present

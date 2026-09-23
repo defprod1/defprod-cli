@@ -2,6 +2,7 @@ import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliRpcClient } from '../../services/cli-rpc.client';
 import { CliConfigService } from '../../services/cli-config.service';
 import { CaseName } from '@defprod/defprod-common';
+import { formatTable } from '../../utils/format-table.util';
 
 /**
  * Implementation for listing areas.
@@ -51,13 +52,12 @@ function formatTableOutput(data: any[], entityType: string): void {
         return;
     }
 
-    console.log('#\tID\t\tName');
-    console.log('─'.repeat(60));
-    data.forEach((item: any, index: number) => {
-        const number: number = index + 1;
-        const id: string = item.key || item._id || 'N/A';
-        const name: string = item.name || 'N/A';
-        console.log(`${number}.\t${id}\t${name}`);
-    });
+    const rows: string[][] = data.map((item: any, index: number) => [
+        `${index + 1}.`,
+        // Keys are what users type; fall back to the ID only for a record with no key.
+        item.key || item._id || 'N/A',
+        item.name || 'N/A'
+    ]);
+    formatTable(['#', 'Key', 'Name'], rows, { rightAlign: [0] }).forEach((line: string) => console.log(line));
 }
 

@@ -7,13 +7,13 @@ import { viewStoryImpl } from '../../impl/view/view-story.impl';
 export const viewStoryCommand: CliCommandNode = {
 
     name: 'story',
-    description: 'View a user story (by ID, name, or list number)',
+    description: 'View a user story (by key, ID, name, or list number)',
 
     arguments: [
         {
             name: 'identifier',
-            valueName: '<id|name|#>',
-            description: 'Story identifier (ID, name, or list number)',
+            valueName: '<key|id|name|#>',
+            description: 'Story identifier (key, ID, name, or list number)',
             required: true,
             parse: (raw: string): string => {
                 // Strip quotes if present

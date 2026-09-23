@@ -2,6 +2,7 @@ import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliRpcClient } from '../../services/cli-rpc.client';
 import { CliConfigService } from '../../services/cli-config.service';
 import { CaseName } from '@defprod/defprod-common';
+import { formatTable } from '../../utils/format-table.util';
 
 /**
  * Implementation for listing user stories.
@@ -51,13 +52,12 @@ function formatTableOutput(data: any[], entityType: string): void {
         return;
     }
 
-    console.log('#\tID\t\tTitle');
-    console.log('─'.repeat(60));
-    data.forEach((item: any, index: number) => {
-        const number: number = index + 1;
-        const id: string = item.key || item._id || 'N/A';
-        const title: string = item.title || 'N/A';
-        console.log(`${number}.\t${id}\t${title}`);
-    });
+    const rows: string[][] = data.map((item: any, index: number) => [
+        `${index + 1}.`,
+        // Keys are what users type; fall back to the ID only for a record with no key.
+        item.key || item._id || 'N/A',
+        item.title || 'N/A'
+    ]);
+    formatTable(['#', 'Key', 'Title'], rows, { rightAlign: [0] }).forEach((line: string) => console.log(line));
 }
 
