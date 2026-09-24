@@ -158,6 +158,19 @@ export class CliConfigService {
     }
 
     /**
+     * Get the path of a state file kept beside the configuration file and paired with
+     * it by name (`cli.json` → `cli-<suffix>`), so each configuration has its own
+     * @param suffix File name suffix, e.g. `list-snapshots.json`
+     * @returns Path to the paired state file
+     */
+    public static getPairedStatePath(suffix: string): string {
+
+        const configPath: string = CliConfigService.getConfigPath();
+        const base: string = path.basename(configPath, path.extname(configPath));
+        return path.join(path.dirname(configPath), `${base}-${suffix}`);
+    }
+
+    /**
      * Reset configuration to defaults
      */
     public static resetConfig(): void {

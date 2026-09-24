@@ -4,6 +4,7 @@ import { CliLlmService } from '../../services/cli-llm.service';
 import { CliConfigService } from '../../services/cli-config.service';
 import { CaseName } from '@defprod/defprod-common';
 import { findByKey, looksLikeEntityId } from '../../utils/find-by-key.util';
+import { CliListKind, CliListSnapshotService } from '../../services/cli-list-snapshot.service';
 
 /**
  * Implementation for viewing area.
@@ -60,7 +61,7 @@ async function resolveKeyToId(identifier: string, productId: string): Promise<st
 }
 
 /**
- * View entity by number from the list.
+ * View the entity at a row of the most recent list of that kind (`/list areas`).
  */
 async function viewByNumber(
     entityType: string,
@@ -69,45 +70,13 @@ async function viewByNumber(
     options: { json?: boolean }
 ): Promise<void> {
 
-    const rpcClient: CliRpcClient = new CliRpcClient();
-    let listCaseName: CaseName;
-
-    switch ( entityType.toLowerCase() ) {
-        case 'area':
-        case 'areas':
-            listCaseName = CaseName.listAreas;
-            break;
-        default:
-            throw new Error(`Number-based selection not supported for ${entityType}`);
-    }
+    const kind: CliListKind = 'area';
+    const entityId: string = CliListSnapshotService.resolve(kind, entityNumber, productId);
 
     try {
-        const entities: any[] = await rpcClient.request({
-            name: listCaseName,
-            input: { productId: productId }
-        });
-
-        if ( entities.length === 0 ) {
-            throw new Error(`No ${entityType} found.`);
-        }
-
-        // Entity numbers are 1-based
-        const index: number = entityNumber - 1;
-        if ( index < 0 || index >= entities.length ) {
-            throw new Error(`Invalid ${entityType} number: ${entityNumber}. Available: 1-${entities.length}`);
-        }
-
-        const selectedEntity: any = entities[index];
-        const entityId: string = selectedEntity._id || selectedEntity.key;
-
-        if ( ! entityId ) {
-            throw new Error(`Selected ${entityType} has no ID.`);
-        }
-
-        // View the selected entity using strict mode
         await viewStrict(entityType, entityId, productId, options);
     } catch ( error: any ) {
-        throw new Error(`Failed to view ${entityType} by number: ${error.message}`);
+        throw new Error(`${entityType} ${entityNumber} from the last list could not be shown (it may have been deleted): ${error.message}`);
     }
 }
 

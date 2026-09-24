@@ -96,7 +96,7 @@ Start the CLI without arguments to enter REPL mode:
 
 ```bash
 $ defprod
-DefProd CLI Agent
+DefProd CLI Agent vX.Y.Z
 >
 ```
 

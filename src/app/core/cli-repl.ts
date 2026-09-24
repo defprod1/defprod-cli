@@ -10,6 +10,7 @@ import { CommandParser } from './parser/command-parser';
 import { rootCommand } from '../spec/root.command';
 import { CliCommandNode } from './types/cli-types';
 import { HelpUtil } from '../utils/help.util';
+import { CLI_VERSION } from '../cli-version';
 
 export class CliRepl {
 
@@ -43,7 +44,7 @@ export class CliRepl {
      */
     public async start(): Promise<void> {
 
-        console.log('DefProd CLI Agent');
+        console.log(`DefProd CLI Agent v${CLI_VERSION}`);
         console.log('Type "/help" for available commands, "/exit" or press Ctrl+D to quit\n');
 
         // Load product name if we have a product ID but no name

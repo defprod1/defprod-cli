@@ -1,5 +1,6 @@
 import { CliCommandNode, CliNextNode } from '../../core/types/cli-types';
 import { listStoriesImpl } from '../../impl/list/list-stories.impl';
+import { LIST_PAGING_OPTIONS } from '../../utils/list-paging.util';
 
 /**
  * List stories command specification.
@@ -17,7 +18,8 @@ export const listStoriesCommand: CliCommandNode = {
             takesValue: true,
             valueName: '<area-key>',
             parse: (raw: string): string => raw.trim()
-        }
+        },
+        ...LIST_PAGING_OPTIONS
     ],
 
     next: {

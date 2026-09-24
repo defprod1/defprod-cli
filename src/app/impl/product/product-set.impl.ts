@@ -2,6 +2,7 @@ import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliRpcClient } from '../../services/cli-rpc.client';
 import { CliConfigService } from '../../services/cli-config.service';
 import { CaseName } from '@defprod/defprod-common';
+import { CliListSnapshotService } from '../../services/cli-list-snapshot.service';
 
 /**
  * Implementation for setting the current product.
@@ -27,8 +28,7 @@ export async function productSetImpl(ctx: CliExecutionContext): Promise<void> {
         });
 
         const productName: string = product.name || identifier;
-        CliConfigService.setCurrentProduct(identifier, productName);
-        console.log(`Current product: ${productName} (${identifier})`);
+        setCurrentProduct(identifier, productName);
     } catch ( error: any ) {
         // If exact match fails, try listing and finding by name using startsWith
         try {
@@ -64,8 +64,7 @@ export async function productSetImpl(ctx: CliExecutionContext): Promise<void> {
 
             if ( matched ) {
                 const matchedProductName: string = matched.name || matched._id;
-                CliConfigService.setCurrentProduct(matched._id, matchedProductName);
-                console.log(`Current product: ${matchedProductName} (${matched._id})`);
+                setCurrentProduct(matched._id, matchedProductName);
             } else {
                 throw new Error(`Product not found: ${identifier}`);
             }
@@ -76,34 +75,34 @@ export async function productSetImpl(ctx: CliExecutionContext): Promise<void> {
 }
 
 /**
- * Set product by number from the list.
+ * Set the product at a row of the most recent `/product list`.
  */
 async function setProductByNumber(rpcClient: CliRpcClient, productNumber: number): Promise<void> {
 
+    const productId: string = CliListSnapshotService.resolve('product', productNumber);
+
+    let selectedProduct: any;
     try {
-        const products: any[] = await rpcClient.request({
-            name: CaseName.listProducts,
-            input: { isTemplate: false }
+        selectedProduct = await rpcClient.request({
+            name: CaseName.getProduct,
+            input: { productId }
         });
-
-        if ( products.length === 0 ) {
-            throw new Error('No products found.');
-        }
-
-        // Product numbers are 1-based
-        const index: number = productNumber - 1;
-        if ( index < 0 || index >= products.length ) {
-            throw new Error(`Invalid product number: ${productNumber}. Available: 1-${products.length}`);
-        }
-
-        const selectedProduct: any = products[index];
-        const productId: string = selectedProduct._id;
-        const productName: string = selectedProduct.name || productId;
-
-        CliConfigService.setCurrentProduct(productId, productName);
-        console.log(`Current product: ${productName} (${productId})`);
     } catch ( error: any ) {
-        throw new Error(`Failed to set product by number: ${error.message}`);
+        throw new Error(`Product ${productNumber} from the last list could not be set (it may have been deleted): ${error.message}`);
     }
+
+    setCurrentProduct(productId, selectedProduct?.name || productId);
 }
 
+/**
+ * Make a product current. The story and area lists belong to the previous product, so
+ * their row numbers are discarded.
+ */
+function setCurrentProduct(productId: string, productName: string): void {
+
+    if ( CliConfigService.getCurrentProduct() !== productId ) {
+        CliListSnapshotService.clearProductScoped();
+    }
+    CliConfigService.setCurrentProduct(productId, productName);
+    console.log(`Current product: ${productName} (${productId})`);
+}

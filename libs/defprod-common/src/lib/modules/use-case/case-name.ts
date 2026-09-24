@@ -151,6 +151,7 @@ export enum CaseName {
     updateArea = 'updateArea',
     deleteArea = 'deleteArea',
     reorderAreas = 'reorderAreas',
+    sortAreasByKey = 'sortAreasByKey',
 
     // Brief
     patchBrief = 'patchBrief',
@@ -305,6 +306,7 @@ export enum CaseName {
     listUserStories = 'listUserStories',
     reorderUserStories = 'reorderUserStories',
     renumberUserStories = 'renumberUserStories',
+    sortUserStoriesByKey = 'sortUserStoriesByKey',
 
     // Invoice
     listInvoicesAdmin = 'listInvoicesAdmin',

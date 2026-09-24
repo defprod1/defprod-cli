@@ -1,6 +1,7 @@
 import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliRpcClient } from '../../services/cli-rpc.client';
 import { CaseName } from '@defprod/defprod-common';
+import { CliListSnapshotService } from '../../services/cli-list-snapshot.service';
 
 /**
  * Implementation for viewing a template.
@@ -90,7 +91,7 @@ export async function viewTemplateImpl(ctx: CliExecutionContext): Promise<void> 
 }
 
 /**
- * View template by number from the list.
+ * View the template at a row of the most recent `/list templates`.
  */
 async function viewTemplateByNumber(
     rpcClient: CliRpcClient,
@@ -98,24 +99,9 @@ async function viewTemplateByNumber(
     options: { json?: boolean }
 ): Promise<void> {
 
+    const templateId: string = CliListSnapshotService.resolve('template', templateNumber);
+
     try {
-        const templates: any[] = await rpcClient.request({
-            name: CaseName.listProducts,
-            input: { isTemplate: true }
-        });
-
-        if ( templates.length === 0 ) {
-            throw new Error('No templates found.');
-        }
-
-        const index: number = templateNumber - 1;
-        if ( index < 0 || index >= templates.length ) {
-            throw new Error(`Invalid template number: ${templateNumber}. Available: 1-${templates.length}`);
-        }
-
-        const selectedTemplate: any = templates[index];
-        const templateId: string = selectedTemplate._id;
-
         const template = await rpcClient.request({
             name: CaseName.getProduct,
             input: { productId: templateId }
@@ -127,7 +113,7 @@ async function viewTemplateByNumber(
             formatTemplateOutput(template);
         }
     } catch ( error: any ) {
-        throw new Error(`Failed to view template by number: ${error.message}`);
+        throw new Error(`Template ${templateNumber} from the last list could not be shown (it may have been deleted): ${error.message}`);
     }
 }
 

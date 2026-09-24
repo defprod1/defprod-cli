@@ -54,17 +54,7 @@ async function viewElementRoot(
             throw new Error('No elements found in architecture.');
         }
 
-        // Get full element details for root
-        const fullElement: any = await rpcClient.request({
-            name: CaseName.getArchitectureElement,
-            input: { architectureElementId: root._id }
-        });
-
-        if ( options.json ) {
-            console.log(JSON.stringify(fullElement, null, 2));
-        } else {
-            formatEntityOutput(fullElement, 'element');
-        }
+        showElement(root, options);
     } catch ( error: any ) {
         throw new Error(`Failed to view root element: ${error.message}`);
     }
@@ -109,17 +99,7 @@ async function viewElementByDottedNumber(
             throw new Error(`Element with number "${dottedNumber}" not found. Use /list elements to see available numbers.`);
         }
 
-        // Get full element details
-        const fullElement: any = await rpcClient.request({
-            name: CaseName.getArchitectureElement,
-            input: { architectureElementId: element._id }
-        });
-
-        if ( options.json ) {
-            console.log(JSON.stringify(fullElement, null, 2));
-        } else {
-            formatEntityOutput(fullElement, 'element');
-        }
+        showElement(element, options);
     } catch ( error: any ) {
         throw new Error(`Failed to view element: ${error.message}`);
     }
@@ -159,6 +139,22 @@ function findElementByDottedNumber(root: any, dottedNumber: string): any | null 
     }
 
     return currentNode;
+}
+
+/**
+ * Show one element of the tree. The tree already carries each element's full details,
+ * so there is no second lookup: that lookup needs an admin-scoped API key, which a
+ * team or product key does not have.
+ */
+function showElement(treeNode: any, options: { json?: boolean }): void {
+
+    const { children, ...element } = treeNode;
+    void children;
+    if ( options.json ) {
+        console.log(JSON.stringify(element, null, 2));
+    } else {
+        formatEntityOutput(element, 'element');
+    }
 }
 
 /**

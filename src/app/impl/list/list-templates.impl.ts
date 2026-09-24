@@ -1,6 +1,8 @@
 import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliRpcClient } from '../../services/cli-rpc.client';
 import { CaseName } from '@defprod/defprod-common';
+import { CliListSnapshotService } from '../../services/cli-list-snapshot.service';
+import { ListPage, reportPage, selectPage } from '../../utils/list-paging.util';
 
 /**
  * Implementation for listing templates.
@@ -8,6 +10,9 @@ import { CaseName } from '@defprod/defprod-common';
 export async function listTemplatesImpl(ctx: CliExecutionContext): Promise<void> {
 
     const rpcClient: CliRpcClient = new CliRpcClient();
+
+    // Reject a bad --limit / --page before fetching anything
+    selectPage([], ctx.options);
 
     try {
         const templates: any[] = await rpcClient.request({
@@ -25,6 +30,11 @@ export async function listTemplatesImpl(ctx: CliExecutionContext): Promise<void>
             });
         }
 
+        // Rows are numbered by their position in the whole filtered list, and that list
+        // is remembered so a row number selects the template shown at it
+        const page: ListPage<any> = selectPage(filteredData, ctx.options);
+        CliListSnapshotService.save('template', filteredData.map((template: any) => template._id));
+
         if ( filteredData.length === 0 ) {
             console.log('No templates found.');
             return;
@@ -32,14 +42,15 @@ export async function listTemplatesImpl(ctx: CliExecutionContext): Promise<void>
 
         // Format output
         if ( ctx.options.json ) {
-            console.log(JSON.stringify(filteredData, null, 2));
-        } else {
+            console.log(JSON.stringify(page.items, null, 2));
+        } else if ( page.items.length > 0 ) {
             console.log('Templates:');
-            filteredData.forEach((template: any, index: number) => {
+            page.items.forEach((template: any, index: number) => {
                 const name: string = template.name || 'N/A';
-                console.log(`${index + 1}. ${name}`);
+                console.log(`${page.offset + index + 1}. ${name}`);
             });
         }
+        reportPage(page, 'templates', ctx.options.json === true);
     } catch ( error: any ) {
         throw new Error(`Failed to list templates: ${error.message}`);
     }
