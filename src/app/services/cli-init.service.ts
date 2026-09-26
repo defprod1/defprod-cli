@@ -2,7 +2,7 @@ import * as readline from 'readline';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { CliConfigService } from './cli-config.service';
+import { CliConfigService, DEFAULT_DEFPROD_API_URL } from './cli-config.service';
 import { CliConfigType } from '../models/cli-config-type';
 
 export class CliInitService {
@@ -172,7 +172,7 @@ export class CliInitService {
             const defprodApiUrl: string = await this.promptForValue(
                 rl,
                 'DefProd API URL',
-                'https://api.defprod.one/api/v1'
+                DEFAULT_DEFPROD_API_URL
             );
             if ( defprodApiUrl ) {
                 config.defprodApiUrl = defprodApiUrl;

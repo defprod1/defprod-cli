@@ -3,6 +3,9 @@ import * as path from 'path';
 import * as os from 'os';
 import { CliConfigType } from '../models/cli-config-type';
 
+/** The public DefProd API, used when no DefProd API URL is configured. */
+export const DEFAULT_DEFPROD_API_URL: string = 'https://app.defprod.one/api/v1';
+
 export class CliConfigService {
 
     private static config: CliConfigType | null = null;
@@ -53,7 +56,7 @@ export class CliConfigService {
             aiProviderApiKey: process.env.DEFPROD_AI_API_KEY,
             aiModel: process.env.DEFPROD_AI_MODEL || 'gemini-2.0-flash',
             defprodApiKey: process.env.DEFPROD_API_KEY,
-            defprodApiUrl: process.env.DEFPROD_API_URL || 'https://api.defprod.one/api/v1',
+            defprodApiUrl: process.env.DEFPROD_API_URL || DEFAULT_DEFPROD_API_URL,
             currentProduct: process.env.DEFPROD_CURRENT_PRODUCT,
             strictMode: process.env.DEFPROD_STRICT_MODE === 'true',
             backendCaFiles: []

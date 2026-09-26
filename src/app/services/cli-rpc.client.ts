@@ -4,7 +4,7 @@ import type { CaseRequest, CaseOutputs, CaseResponse, SingleCaseResponse, ListCa
 import { EnvHttpProxyAgent, ProxyAgent, Dispatcher } from 'undici';
 import * as tls from 'tls';
 import * as fs from 'fs';
-import { CliConfigService } from './cli-config.service';
+import { CliConfigService, DEFAULT_DEFPROD_API_URL } from './cli-config.service';
 import { CliProxyConfig } from '../models/cli-config-type';
 
 /**
@@ -41,7 +41,7 @@ export class CliRpcClient {
 
         const config = CliConfigService.loadConfig();
         this.apiKey = config.defprodApiKey || '';
-        this.apiUrl = config.defprodApiUrl || 'https://api.defprod.one/api/v1';
+        this.apiUrl = config.defprodApiUrl || DEFAULT_DEFPROD_API_URL;
     }
 
     /**
