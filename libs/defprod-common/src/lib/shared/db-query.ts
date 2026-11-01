@@ -1,14 +1,22 @@
 import { z } from 'zod';
+import { boundedRecord } from './bounded-record';
+import { LIST_LENGTH, TEXT_LENGTH } from './text-length';
 
-export const DbQueryFilterSchema = z.any().describe('A database query filter (can be any MongoDB filter object)');
+/**
+ * A MongoDB filter the SERVER builds. Deliberately a plain type with no Zod schema: a filter is a
+ * query language (`$where`, `$expr`, `$function`, `$regex`), so a caller-supplied one is an
+ * injection surface. No case input may carry one — a list case that filters declares named,
+ * typed criteria and translates them itself (defprod/CHG-326; defprod/CHG-322 closed the same
+ * shape on the retention `where`). Loose rather than `unknown` because repos build these
+ * incrementally (`filter.at.$gte = …`).
+ */
+export type DbQueryFilter = Record<string, any>;
 
-export type DbQueryFilter = z.infer<typeof DbQueryFilterSchema>;
-
-export const DbQueryProjectionSchema = z.record(z.string(), z.union([z.literal(0), z.literal(1)])).describe('A database query projection mapping field names to 0 (exclude) or 1 (include)');
+export const DbQueryProjectionSchema = boundedRecord(z.string().max(TEXT_LENGTH.name), z.union([z.literal(0), z.literal(1)]), LIST_LENGTH.few).describe('A database query projection mapping field names to 0 (exclude) or 1 (include)');
 
 export type DbQueryProjection = z.infer<typeof DbQueryProjectionSchema>;
 
-export const DbQuerySortSchema = z.record(z.string(), z.union([z.literal(1), z.literal(-1)])).describe('A database query sort mapping field names to 1 (ascending) or -1 (descending)');
+export const DbQuerySortSchema = boundedRecord(z.string().max(TEXT_LENGTH.name), z.union([z.literal(1), z.literal(-1)]), LIST_LENGTH.few).describe('A database query sort mapping field names to 1 (ascending) or -1 (descending)');
 
 export type DbQuerySort = z.infer<typeof DbQuerySortSchema>;
 
@@ -19,11 +27,10 @@ export const DbQueryPageSchema = z.object({
 
 export type DbQueryPage = z.infer<typeof DbQueryPageSchema>;
 
-export const DbQuerySchema = z.object({
-    filter: DbQueryFilterSchema.optional().describe('Optional filter criteria for the query'),
-    projection: DbQueryProjectionSchema.optional().describe('Optional projection to specify which fields to include/exclude'),
-    sort: DbQuerySortSchema.optional().describe('Optional sort specification'),
-    page: DbQueryPageSchema.optional().describe('Optional pagination parameters'),
-}).describe('A complete database query with optional filter, projection, sort, and pagination');
-
-export type DbQuery = z.infer<typeof DbQuerySchema>;
+/** A complete server-built database query. Not a wire type — see {@link DbQueryFilter}. */
+export interface DbQuery {
+    filter?: DbQueryFilter;
+    projection?: DbQueryProjection;
+    sort?: DbQuerySort;
+    page?: DbQueryPage;
+}

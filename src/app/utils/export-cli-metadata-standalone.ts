@@ -31,5 +31,6 @@ if ( ! outputPath ) {
     process.exit(1);
 }
 
-exportCliMetadata(outputPath);
+// not awaited: script entry point; exportCliMetadata reports its own failure and exits non-zero.
+void exportCliMetadata(outputPath);
 

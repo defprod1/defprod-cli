@@ -59,51 +59,65 @@ export class CliRepl {
         this.rl.setPrompt(this.getPrompt());
         this.rl.prompt();
 
-        this.rl.on('line', async (input: string) => {
-            const trimmed: string = input.trim();
-            
-            if ( trimmed === '' ) {
+        this.rl.on('line', (input: string) => {
+            // not awaited: a readline listener cannot be awaited. handleLine reports a failed
+            // command itself; this catch covers anything after it (e.g. the history write).
+            void this.handleLine(input).catch(( error: unknown ) => {
+                const errorMessage: string = error instanceof Error ? error.message : String(error);
+                process.stdout.write(`\nError: ${errorMessage}\n\n`);
                 this.rl.setPrompt(this.getPrompt());
                 this.rl.prompt();
-                return;
-            }
-
-            // Auto-complete word if unambiguous before executing
-            const completed: string = this.autoComplete(trimmed);
-            if ( completed !== trimmed ) {
-                // Move cursor up one line (since Enter already moved to new line)
-                readline.moveCursor(process.stdout, 0, -1);
-                // Move to beginning of line and clear it
-                readline.cursorTo(process.stdout, 0);
-                readline.clearLine(process.stdout, 0);
-                // Write the completed command
-                process.stdout.write(this.getPrompt() + completed + '\n');
-            }
-
-            let commandSucceeded: boolean = false;
-            try {
-                await this.processCommand(completed);
-                commandSucceeded = true;
-            } catch ( error: any ) {
-                // Write error message with proper formatting
-                process.stdout.write(`\nError: ${error.message}\n\n`);
-            }
-
-            // Save successful commands to history
-            if ( commandSucceeded ) {
-                CliHistoryService.appendToHistory(completed);
-                // Add blank line after successful command
-                console.log('');
-            }
-
-            this.rl.setPrompt(this.getPrompt());
-            this.rl.prompt();
+            });
         });
 
         this.rl.on('close', () => {
             console.log('\nGoodbye!');
             process.exit(0);
         });
+    }
+
+    /**
+     * Run one entered line: auto-complete it, execute it, record it in history, re-prompt.
+     */
+    private async handleLine(input: string): Promise<void> {
+        const trimmed: string = input.trim();
+        
+        if ( trimmed === '' ) {
+            this.rl.setPrompt(this.getPrompt());
+            this.rl.prompt();
+            return;
+        }
+
+        // Auto-complete word if unambiguous before executing
+        const completed: string = this.autoComplete(trimmed);
+        if ( completed !== trimmed ) {
+            // Move cursor up one line (since Enter already moved to new line)
+            readline.moveCursor(process.stdout, 0, -1);
+            // Move to beginning of line and clear it
+            readline.cursorTo(process.stdout, 0);
+            readline.clearLine(process.stdout, 0);
+            // Write the completed command
+            process.stdout.write(this.getPrompt() + completed + '\n');
+        }
+
+        let commandSucceeded: boolean = false;
+        try {
+            await this.processCommand(completed);
+            commandSucceeded = true;
+        } catch ( error: any ) {
+            // Write error message with proper formatting
+            process.stdout.write(`\nError: ${error.message}\n\n`);
+        }
+
+        // Save successful commands to history
+        if ( commandSucceeded ) {
+            CliHistoryService.appendToHistory(completed);
+            // Add blank line after successful command
+            console.log('');
+        }
+
+        this.rl.setPrompt(this.getPrompt());
+        this.rl.prompt();
     }
 
     /**

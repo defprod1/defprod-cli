@@ -45,9 +45,13 @@ const RESERVED_DELIMITERS: string[] = [
  * Matches an opening or closing tag for any reserved delimiter — and only those. A tag for
  * anything else (`<div>`, `<T>`) is left alone: it cannot escape a fence, so escaping it
  * would degrade the content for no gain.
+ *
+ * `<\s*(?:\/\s*)?` accepts the same strings as the earlier `<\s*\/?\s*`, whose two adjacent
+ * `\s*` backtracked quadratically on a `<` followed by a long run of whitespace. Run it only
+ * through `neutralizeDelimiters`, which keeps the `[^>]*` scan linear too.
  */
 const RESERVED_DELIMITER_PATTERN: RegExp = new RegExp(
-    `<\\s*/?\\s*(?:${RESERVED_DELIMITERS.join('|')})\\b[^>]*>`,
+    `<\\s*(?:\\/\\s*)?(?:${RESERVED_DELIMITERS.join('|')})\\b[^>]*>`,
     'gi'
 );
 
@@ -111,11 +115,19 @@ export class PromptFencing {
      * so the sequence still reads naturally to a human but no longer terminates a fence.
      */
     public static neutralizeDelimiters(content: string): string {
-        return content.replace(RESERVED_DELIMITER_PATTERN, (match: string) => {
+        // Every match ends at a `>`, so nothing after the last one can be part of a match. Matching
+        // only the prefix keeps the pattern's `[^>]*` linear: run over a tail with no `>`, each
+        // `<user-message` in it scans to the end of the string before failing (defprod/CHG-409).
+        const lastGt: number = content.lastIndexOf('>');
+        if ( lastGt < 0 ) {
+            return content;
+        }
+        const neutralized: string = content.slice(0, lastGt + 1).replace(RESERVED_DELIMITER_PATTERN, (match: string) => {
             return match
                 .replace(/</g, FULLWIDTH_LESS_THAN)
                 .replace(/>/g, FULLWIDTH_GREATER_THAN);
         });
+        return neutralized + content.slice(lastGt + 1);
     }
 
 }

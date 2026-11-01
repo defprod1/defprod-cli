@@ -5,7 +5,7 @@ import { CliConfigService } from './cli-config.service';
 /**
  * The kinds of list whose row numbers can be used to select an item.
  */
-export type CliListKind = 'story' | 'area' | 'template' | 'product';
+export type CliListKind = 'story' | 'area' | 'template' | 'product' | 'group';
 
 interface CliListSnapshot {
     /** The product the list was taken under, for product-scoped kinds */
@@ -25,7 +25,9 @@ const KINDS: Record<CliListKind, CliListKindInfo> = {
     story: { plural: 'stories', listCommand: '/list stories', productScoped: true },
     area: { plural: 'areas', listCommand: '/list areas', productScoped: true },
     template: { plural: 'templates', listCommand: '/list templates', productScoped: false },
-    product: { plural: 'products', listCommand: '/product list', productScoped: false }
+    product: { plural: 'products', listCommand: '/product list', productScoped: false },
+    // Groups belong to the selected product's team, so changing product can change team
+    group: { plural: 'groups', listCommand: '/list groups', productScoped: true }
 };
 
 /**

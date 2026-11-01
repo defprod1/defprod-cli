@@ -10,6 +10,7 @@ export async function listHelpImpl(ctx: CliExecutionContext): Promise<void> {
     console.log('  /list areas                List areas');
     console.log('  /list elements             List architecture elements');
     console.log('  /list templates            List templates');
+    console.log('  /list groups               List the team\'s change groups (--closed includes closed ones)');
     console.log('  /l <type>                  Alias for /list\n');
     console.log('Options:');
     console.log('  --filter <query>           Filter results by keyword');
@@ -17,6 +18,7 @@ export async function listHelpImpl(ctx: CliExecutionContext): Promise<void> {
     console.log('Examples:');
     console.log('  /list stories');
     console.log('  /list stories --filter login');
-    console.log('  /list areas --json\n');
+    console.log('  /list areas --json');
+    console.log('  /list groups --closed\n');
 }
 

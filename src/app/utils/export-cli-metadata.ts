@@ -34,5 +34,6 @@ async function main(): Promise<void> {
     }
 }
 
-main();
+// not awaited: script entry point; main() reports its own failure and exits non-zero.
+void main();
 

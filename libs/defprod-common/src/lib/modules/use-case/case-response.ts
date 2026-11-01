@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DbQueryFilterSchema, DbQuerySortSchema } from '../../shared/db-query';
+import { DbQuerySortSchema } from '../../shared/db-query';
 
 export enum DataCategory {
     none = 'none',
@@ -49,7 +49,8 @@ export interface SingleCaseResponse<T> {
 export const listCaseMetadataSchema = z.object({
     dataCategory: z.literal(DataCategory.list),
     ...baseMetadataShape,
-    filter: DbQueryFilterSchema.optional(),
+    // No `filter` echo: a list case's filter is built server-side from its typed criteria, and
+    // echoing the query back would hand callers the database's own query (defprod/CHG-326).
     sort: DbQuerySortSchema.optional(),
     page: z.object({
         number: z.number(),

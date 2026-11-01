@@ -32,12 +32,12 @@ export const areaDtoSchema = z.object({
     /**
      * Timestamp when this area was created
      */
-    createdAt: z.date(),
+    createdAt: z.iso.datetime(),
     
     /**
      * Timestamp when this area was last updated
      */
-    updatedAt: z.date(),
+    updatedAt: z.iso.datetime(),
     
     /**
      * Sort order for display purposes

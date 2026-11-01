@@ -6,6 +6,7 @@ import { viewAreaCommand } from './view-area.command';
 import { viewElementCommand } from './view-element.command';
 import { viewArchitectureCommand } from './view-architecture.command';
 import { viewTemplateCommand } from './view-template.command';
+import { viewGroupCommand } from './view-group.command';
 
 /**
  * View command specification.
@@ -38,7 +39,8 @@ export const viewCommand: CliCommandNode = {
         viewAreaCommand,
         viewElementCommand,
         viewArchitectureCommand,
-        viewTemplateCommand
+        viewTemplateCommand,
+        viewGroupCommand
     ]
 };
 

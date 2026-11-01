@@ -204,6 +204,7 @@ export class CliLlmService {
 
                     for ( const toolCall of parsedResponse.toolCalls ) {
                         try {
+                            // rpc-input-excess-ok: an LLM-chosen tool call; the case validates its own input server-side
                             const result: any = await this.rpcClient.request({
                                 name: toolCall.name as any,
                                 input: toolCall.input

@@ -3,6 +3,7 @@ import { listStoriesCommand } from './list-stories.command';
 import { listAreasCommand } from './list-areas.command';
 import { listElementsCommand } from './list-elements.command';
 import { listTemplatesCommand } from './list-templates.command';
+import { listGroupsCommand } from './list-groups.command';
 
 /**
  * List command specification.
@@ -11,7 +12,7 @@ import { listTemplatesCommand } from './list-templates.command';
 export const listCommand: CliCommandNode = {
 
     name: 'list',
-    description: 'List entities (stories, areas, elements, templates)',
+    description: 'List entities (stories, areas, elements, templates, groups)',
 
     globalOptions: [
         {
@@ -33,7 +34,8 @@ export const listCommand: CliCommandNode = {
         listStoriesCommand,
         listAreasCommand,
         listElementsCommand,
-        listTemplatesCommand
+        listTemplatesCommand,
+        listGroupsCommand
     ]
 };
 

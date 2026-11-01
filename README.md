@@ -125,6 +125,7 @@ $ defprod "Create a user story for login with 2FA"
 - `/list architecture` - List architecture
 - `/list components` - List components
 - `/list templates` - List templates
+- `/list groups [--closed]` - List the change groups of the selected product's team
 - `/list users` - List users
 
 Options:
@@ -139,6 +140,7 @@ Options:
 - `/view area <id|name|query>` - View an area
 - `/view template <id|name|#>` - View a template
 - `/view architecture` - View architecture
+- `/view group <key|id|#>` - View a change group, its progress and its member changes
 
 Options:
 - `--json` - Output in JSON format

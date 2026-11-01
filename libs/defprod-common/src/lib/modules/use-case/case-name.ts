@@ -30,7 +30,6 @@ export enum CaseName {
     disableUser = 'disableUser',
     enableUser = 'enableUser',
     listUsers = 'listUsers',
-    migrateProductsToTeams = 'migrateProductsToTeams',
     listGenAiSessionsAdmin = 'listGenAiSessionsAdmin',
     getGenAiSessionDetailAdmin = 'getGenAiSessionDetailAdmin',
     listSignupCasesAdmin = 'listSignupCasesAdmin',
@@ -52,6 +51,7 @@ export enum CaseName {
     deleteAgent = 'deleteAgent',
     startDefinitionGenAiSession = 'startDefinitionGenAiSession',
     continueDefinitionGenAiSession = 'continueDefinitionGenAiSession',
+    resolveDefinitionGenAiProposal = 'resolveDefinitionGenAiProposal',
     deleteDefinitionGenAiSession = 'deleteDefinitionGenAiSession',
     generateDirectionReport = 'generateDirectionReport',
     generateDeliveryReport = 'generateDeliveryReport',
@@ -83,6 +83,16 @@ export enum CaseName {
     recordChangeDefect = 'recordChangeDefect',
     confirmChangePipeline = 'confirmChangePipeline',
     deleteChange = 'deleteChange',
+
+    // Change group (team-scoped programmes of changes — docs/areas/changes/change-groups-design.md)
+    createChangeGroup = 'createChangeGroup',
+    patchChangeGroup = 'patchChangeGroup',
+    closeChangeGroup = 'closeChangeGroup',
+    reopenChangeGroup = 'reopenChangeGroup',
+    deleteChangeGroup = 'deleteChangeGroup',
+    getChangeGroup = 'getChangeGroup',
+    listChangeGroups = 'listChangeGroups',
+    setChangeGroupMembership = 'setChangeGroupMembership',
 
     // Change analytics (docs/areas/changes/change-analytics-design.md) — aggregate
     // reads over change records, plus the two writers that freeze them. Distinct
@@ -144,7 +154,6 @@ export enum CaseName {
 
     // Area
     patchArea = 'patchArea',
-    listAllAreas = 'listAllAreas',
     listAreas = 'listAreas',
     getArea = 'getArea',
     createArea = 'createArea',
@@ -248,6 +257,9 @@ export enum CaseName {
     getProductBySlug = 'getProductBySlug',
     updateProductAndBrief = 'updateProductAndBrief',
     deleteProduct = 'deleteProduct',
+    listDeletedProducts = 'listDeletedProducts',
+    restoreProduct = 'restoreProduct',
+    purgeDeletedProduct = 'purgeDeletedProduct',
     exportProduct = 'exportProduct',
     importProduct = 'importProduct',
     copyProductAsTemplate = 'copyProductAsTemplate',
@@ -277,12 +289,18 @@ export enum CaseName {
     // Task
     sweepStaleInstanceTasks = 'sweepStaleInstanceTasks',
     recordInstanceHeartbeat = 'recordInstanceHeartbeat',
+    detectMissingScheduledTasks = 'detectMissingScheduledTasks',
     // Team
     listTeamsForUser = 'listTeamsForUser',
     getTeam = 'getTeam',
     createTeam = 'createTeam',
     updateTeam = 'updateTeam',
     deleteTeam = 'deleteTeam',
+    getTeamDeletionPreview = 'getTeamDeletionPreview',
+    listDeletedTeams = 'listDeletedTeams',
+    restoreTeam = 'restoreTeam',
+    purgeDeletedTeam = 'purgeDeletedTeam',
+    purgeExpiredDeletedTeams = 'purgeExpiredDeletedTeams',
     listTeamMembers = 'listTeamMembers',
     inviteTeamMember = 'inviteTeamMember',
     acceptTeamInvite = 'acceptTeamInvite',
@@ -298,7 +316,6 @@ export enum CaseName {
 
     // UserStory
     patchUserStory = 'patchUserStory',
-    listAllUserStories = 'listAllUserStories',
     getUserStory = 'getUserStory',
     createUserStory = 'createUserStory',
     updateUserStory = 'updateUserStory',
@@ -310,6 +327,7 @@ export enum CaseName {
 
     // Invoice
     listInvoicesAdmin = 'listInvoicesAdmin',
+    fetchInvoicePdfAdmin = 'fetchInvoicePdfAdmin',
     listInvoices = 'listInvoices',
     getInvoice = 'getInvoice',
     getInvoiceAdmin = 'getInvoiceAdmin',
@@ -319,6 +337,16 @@ export enum CaseName {
     syncAllInvoices = 'syncAllInvoices',
     listBillingHistory = 'listBillingHistory',
     listBillingHistoryAdmin = 'listBillingHistoryAdmin',
+    createManualInvoice = 'createManualInvoice',
+    updateManualInvoice = 'updateManualInvoice',
+    issueManualInvoice = 'issueManualInvoice',
+    resendManualInvoice = 'resendManualInvoice',
+    markManualInvoicePaid = 'markManualInvoicePaid',
+    voidManualInvoice = 'voidManualInvoice',
+    listSellerProfiles = 'listSellerProfiles',
+    createSellerProfile = 'createSellerProfile',
+    updateSellerProfile = 'updateSellerProfile',
+    deleteSellerProfile = 'deleteSellerProfile',
 
     // Refund
     fetchCreditNotePdf = 'fetchCreditNotePdf',
@@ -432,6 +460,7 @@ export enum CaseName {
     createApiKey = 'createApiKey',
     deleteApiKey = 'deleteApiKey',
     renameApiKey = 'renameApiKey',
+    sendApiKeyExpiryWarnings = 'sendApiKeyExpiryWarnings',
     pingApiKey = 'pingApiKey',
     createSyntheticUsers = 'createSyntheticUsers',
     deleteAllSyntheticUsers = 'deleteAllSyntheticUsers',

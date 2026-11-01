@@ -2,7 +2,7 @@ import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliRpcClient } from '../../services/cli-rpc.client';
 import { CliLlmService } from '../../services/cli-llm.service';
 import { CliConfigService } from '../../services/cli-config.service';
-import { CaseName } from '@defprod/defprod-common';
+import { CaseInputs, CaseName } from '@defprod/defprod-common';
 import { findByKey, looksLikeEntityId } from '../../utils/find-by-key.util';
 import { CliListKind, CliListSnapshotService } from '../../services/cli-list-snapshot.service';
 
@@ -91,8 +91,8 @@ async function viewStrict(
 ): Promise<void> {
 
     const rpcClient: CliRpcClient = new CliRpcClient();
-    let caseName: CaseName;
-    let input: any;
+    let caseName: CaseName.getUserStory;
+    let input: CaseInputs[CaseName.getUserStory];
 
     switch ( entityType.toLowerCase() ) {
         case 'story':
