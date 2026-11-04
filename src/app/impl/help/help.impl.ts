@@ -1,6 +1,7 @@
 import { CliExecutionContext } from '../../core/types/cli-types';
 import { HelpGenerator } from '../../utils/help-generator';
 import { rootCommand } from '../../spec/root.command';
+import { CliRpcClient } from '../../services/cli-rpc.client';
 
 /**
  * Implementation for showing help information.
@@ -10,10 +11,12 @@ import { rootCommand } from '../../spec/root.command';
 export async function helpImpl(ctx: CliExecutionContext): Promise<void> {
 
     const commandName: string | undefined = ctx.args.command;
+    // The sign-in commands are listed only once CLI sign-in is available (defprod/CHG-502, CLI-44 AC8).
+    const cliLoginAvailable: boolean = await new CliRpcClient().isCliLoginAvailable();
 
     if ( ! commandName ) {
         // No command specified - show general help
-        const helpText: string = HelpGenerator.generateGeneralHelp();
+        const helpText: string = HelpGenerator.generateGeneralHelp({ cliLoginAvailable });
         console.log(helpText);
         return;
     }
@@ -32,6 +35,7 @@ export async function helpImpl(ctx: CliExecutionContext): Promise<void> {
         'p': ['product'],
         'config': ['config'],
         'c': ['config'],
+        'keys': ['keys'],
         'reorder': ['reorder'],
         'r': ['reorder'],
         'search': ['search'],
@@ -42,15 +46,16 @@ export async function helpImpl(ctx: CliExecutionContext): Promise<void> {
         'h': ['help'],
         'exit': ['exit'],
         'e': ['exit'],
-        'chat': ['chat']
+        'chat': ['chat'],
+        ...( cliLoginAvailable ? { 'login': ['login'], 'logout': ['logout'] } : {} )
     };
 
     commandPath = commandMap[commandLower] || [];
 
     if ( commandPath.length === 0 ) {
         console.log(`\nUnknown command: ${commandName}`);
-        console.log('Available commands for help: list, view, product, config, reorder, search, init, help, exit, chat\n');
-        const helpText: string = HelpGenerator.generateGeneralHelp();
+        console.log(`Available commands for help: list, view, product, config, keys, ${cliLoginAvailable ? 'login, logout, ' : ''}reorder, search, init, help, exit, chat\n`);
+        const helpText: string = HelpGenerator.generateGeneralHelp({ cliLoginAvailable });
         console.log(helpText);
         return;
     }

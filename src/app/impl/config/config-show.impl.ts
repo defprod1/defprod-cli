@@ -1,5 +1,7 @@
 import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliConfigService } from '../../services/cli-config.service';
+import { displayDate, keyRenewalModeOf, storedKeyInfoFor } from '../../services/cli-api-key-info';
+import { CliApiKeyInfo } from '../../models/cli-config-type';
 
 /**
  * Implementation for showing configuration.
@@ -12,7 +14,10 @@ export async function configShowImpl(ctx: CliExecutionContext): Promise<void> {
     console.log(`AI Model: ${config.aiModel || 'not set'}`);
     console.log(`AI Provider API Key: ${config.aiProviderApiKey ? '***' : 'not set'}`);
     console.log(`DefProd API URL: ${config.defprodApiUrl || 'not set'}`);
-    console.log(`DefProd API Key: ${config.defprodApiKey ? '***' : 'not set'}`);
+    const keyInfo: CliApiKeyInfo | undefined = storedKeyInfoFor(config, config.defprodApiKey);
+    const keyExpiry: string = keyInfo?.expiresAt ? ` (expires ${displayDate(keyInfo.expiresAt)})` : '';
+    console.log(`DefProd API Key: ${config.defprodApiKey ? `***${keyExpiry}` : 'not set'}`);
+    console.log(`Key Renewal: ${keyRenewalModeOf(config)}`);
     if ( config.currentProduct ) {
         const productDisplay: string = config.currentProductName
             ? `${config.currentProductName} (${config.currentProduct})`

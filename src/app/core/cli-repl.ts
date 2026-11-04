@@ -2,6 +2,11 @@ import * as readline from 'readline';
 import { CaseName } from '@defprod/defprod-common';
 import { CliRpcClient } from '../services/cli-rpc.client';
 import { CliLlmService } from '../services/cli-llm.service';
+import { createCliToolConfirmer } from '../services/cli-tool-gate';
+import { cliVersionNotice } from '../services/cli-version-notice.service';
+import { cliKeyRenewal } from '../services/cli-key-renewal.service';
+import { cliInterrupt } from '../services/cli-interrupt';
+import { beginCliCommand } from '../services/cli-command-context';
 import { CliConfigService } from '../services/cli-config.service';
 import { CliInitService } from '../services/cli-init.service';
 import { CliHistoryService } from '../services/cli-history.service';
@@ -12,8 +17,34 @@ import { CliCommandNode } from './types/cli-types';
 import { HelpUtil } from '../utils/help.util';
 import { CLI_VERSION } from '../cli-version';
 
+/** What Ctrl+C does in the REPL. */
+export enum ReplSigintAction {
+    /** A wait (e.g. /login) was cancelled; the REPL carries on. */
+    cancelledWait = 'cancelledWait',
+    /** Typed text is cleared and the prompt shown again. */
+    clearLine = 'clearLine',
+    /** The REPL closes, as Ctrl+C always did. */
+    close = 'close'
+}
+
+/**
+ * Decide what Ctrl+C does (defprod/CHG-502): cancel a wait in progress; otherwise clear the line when
+ * something is typed and no command is running; otherwise close the REPL, which also stops a command
+ * that will not finish.
+ */
+export function replSigintAction(line: string, commandRunning: boolean, cancelWait: () => boolean): ReplSigintAction {
+
+    if ( cancelWait() ) {
+        return ReplSigintAction.cancelledWait;
+    }
+    const action: ReplSigintAction = ! commandRunning && line.length > 0 ? ReplSigintAction.clearLine : ReplSigintAction.close;
+    return action;
+}
+
 export class CliRepl {
 
+    /** A command is executing: Ctrl+C then closes the REPL rather than clearing a line. */
+    private commandRunning: boolean = false;
     private rpcClient: CliRpcClient;
     private llmService: CliLlmService;
     private commandParser: CommandParser;
@@ -37,6 +68,32 @@ export class CliRepl {
 
         // Set up auto-completion on space
         this.setupSpaceAutoComplete();
+
+        // The renewal question (CLI-46) goes through this readline, so the two never fight over input.
+        // The question itself is written to the error stream; standard output stays the commands' own.
+        cliKeyRenewal.setPrompter((question: string): Promise<string> => new Promise<string>((resolve) => {
+            process.stderr.write(question);
+            this.rl.question('', resolve);
+        }));
+
+        // The chat's confirmation before any command (CLI-35 AC8) asks through the same readline.
+        this.llmService.setConfirmer(createCliToolConfirmer((question: string): Promise<string> => new Promise<string>((resolve) => {
+            process.stderr.write(question);
+            this.rl.question('', resolve);
+        })));
+
+        // Ctrl+C cancels a wait in progress, such as /login waiting for approval (CLI-44 AC4). Otherwise
+        // it does what readline does without a listener: clear typed text, or close the REPL.
+        this.rl.on('SIGINT', () => {
+            const action: ReplSigintAction = replSigintAction((this.rl as any).line ?? '', this.commandRunning, () => cliInterrupt.trigger());
+            if ( action === ReplSigintAction.clearLine ) {
+                process.stdout.write('\n');
+                this.rl.write(null, { ctrl: true, name: 'u' });
+                this.rl.prompt();
+            } else if ( action === ReplSigintAction.close ) {
+                this.rl.close();
+            }
+        });
     }
 
     /**
@@ -52,6 +109,10 @@ export class CliRepl {
         if ( currentProduct && ! CliConfigService.getCurrentProductName() ) {
             await this.loadProductNameIfNeeded(currentProduct);
         }
+
+        // Learn whether CLI sign-in is available, so completion can offer /login once it is (CLI-44 AC8).
+        // not awaited: it only warms a cache; isCliLoginAvailable never rejects.
+        void this.rpcClient.isCliLoginAvailable();
 
         // Load command history
         this.loadHistory();
@@ -101,13 +162,20 @@ export class CliRepl {
         }
 
         let commandSucceeded: boolean = false;
+        this.commandRunning = true;
         try {
             await this.processCommand(completed);
             commandSucceeded = true;
         } catch ( error: any ) {
             // Write error message with proper formatting
             process.stdout.write(`\nError: ${error.message}\n\n`);
+        } finally {
+            this.commandRunning = false;
         }
+
+        // At most one upgrade notice per session, after the first command that received one
+        // (CLI-43 AC8). A command asking for JSON holds it back for the next one.
+        cliVersionNotice.flush({ jsonOutput: /(^|\s)--json(\s|$)/.test(completed) });
 
         // Save successful commands to history
         if ( commandSucceeded ) {
@@ -457,7 +525,12 @@ export class CliRepl {
         if ( ! node.children ) {
             return [];
         }
-        return node.children.map(child => child.name);
+        // The sign-in commands are offered only once CLI sign-in is known to be available (CLI-44 AC8).
+        const loginAvailable: boolean = CliRpcClient.knownCliLoginAvailable();
+        const names: string[] = node.children
+            .filter(child => loginAvailable || ! child.requiresCliLogin)
+            .map(child => child.name);
+        return names;
     }
 
     /**
@@ -601,6 +674,7 @@ export class CliRepl {
      */
     private async processNaturalLanguageCommand(command: string): Promise<void> {
 
+        beginCliCommand([], false);
         try {
             const currentProduct: string | undefined = CliConfigService.getCurrentProduct();
             const context: string = currentProduct ? `Current product: ${currentProduct}` : 'No product selected';

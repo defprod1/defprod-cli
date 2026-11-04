@@ -1,6 +1,7 @@
 import { CliCommandNode, CliNextNode, CliArgument, CliOption, CliExecutionContext } from '../types/cli-types';
 import { tokenize, Token } from './tokenizer';
 import { OutputCaptureUtil } from '../../utils/output-capture.util';
+import { beginCliCommand } from '../../services/cli-command-context';
 
 /**
  * Error thrown when command parsing fails
@@ -313,6 +314,8 @@ export class CommandParser {
             options: { ...options },
             rawTokens: remainingTokens.map(t => t.raw)
         };
+        // Services acting around the command (key renewal) need to know which it is and whether its output is JSON.
+        beginCliCommand(ctx.commandPath, !! ctx.options.json);
 
         try {
             await nextNode.run(ctx);

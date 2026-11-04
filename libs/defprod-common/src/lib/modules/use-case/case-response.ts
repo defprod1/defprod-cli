@@ -21,6 +21,12 @@ const baseMetadataShape = {
      * time (ADR0018). Absent means "did work": a case that never reports keeps the long window.
      */
     didWork: z.boolean().optional(),
+    /**
+     * What was removed from the request before it was used (defprod/CHG-467, USER-43). Present only
+     * when something was: `apiKeys` counts the DefProd API keys redacted from the request's text, so
+     * the client can tell the person who submitted it.
+     */
+    redacted: z.object({ apiKeys: z.number() }).optional(),
 };
 
 const noDataMetadataSchema = z.object({

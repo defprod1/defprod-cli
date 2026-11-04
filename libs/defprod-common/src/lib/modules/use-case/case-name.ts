@@ -95,6 +95,22 @@ export enum CaseName {
     setChangeGroupMembership = 'setChangeGroupMembership',
 
     // Change analytics (docs/areas/changes/change-analytics-design.md) — aggregate
+
+    // Oauth
+    disconnectOauthGrant = 'disconnectOauthGrant',
+    listOauthGrants = 'listOauthGrants',
+    listTeamOauthGrants = 'listTeamOauthGrants',
+    listTeamApiKeys = 'listTeamApiKeys',
+    revokeTeamMemberApiKey = 'revokeTeamMemberApiKey',
+
+    // CLI sign-in (defprod/CHG-502, ADR0027 §11)
+    startCliLogin = 'startCliLogin',
+    pollCliLogin = 'pollCliLogin',
+    getCliLoginAvailability = 'getCliLoginAvailability',
+    getCliLoginRequest = 'getCliLoginRequest',
+    decideCliLogin = 'decideCliLogin',
+    revokeOwnApiKey = 'revokeOwnApiKey',
+    describeOwnApiKey = 'describeOwnApiKey',
     // reads over change records, plus the two writers that freeze them. Distinct
     // again from the change REPORTS above: those narrate definition revisions, these
     // measure delivery.
@@ -291,6 +307,7 @@ export enum CaseName {
     recordInstanceHeartbeat = 'recordInstanceHeartbeat',
     detectMissingScheduledTasks = 'detectMissingScheduledTasks',
     // Team
+    updateTeamApiKeyPolicy = 'updateTeamApiKeyPolicy',
     listTeamsForUser = 'listTeamsForUser',
     getTeam = 'getTeam',
     createTeam = 'createTeam',
@@ -381,7 +398,6 @@ export enum CaseName {
     createSubscriptionWithNewCard = 'createSubscriptionWithNewCard',
     createSubscriptionWithStoredCard = 'createSubscriptionWithStoredCard',
     getCurrentSubscription = 'getCurrentSubscription',
-    reactivateSubscriptionWithPlanChange = 'reactivateSubscriptionWithPlanChange',
 
     // Tasks
     listTasks = 'listTasks',
@@ -460,6 +476,9 @@ export enum CaseName {
     createApiKey = 'createApiKey',
     deleteApiKey = 'deleteApiKey',
     renameApiKey = 'renameApiKey',
+    rotateApiKey = 'rotateApiKey',
+    rotateApiKeyChain = 'rotateApiKeyChain',
+    revokeApiKey = 'revokeApiKey',
     sendApiKeyExpiryWarnings = 'sendApiKeyExpiryWarnings',
     pingApiKey = 'pingApiKey',
     createSyntheticUsers = 'createSyntheticUsers',

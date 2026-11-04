@@ -85,8 +85,13 @@ All fields are optional. You can also use environment variables:
 - `DEFPROD_API_URL` - DefProd API URL
 - `DEFPROD_CURRENT_PRODUCT` - Current product ID
 - `DEFPROD_STRICT_MODE` - Enable strict mode (true/false)
+- `DEFPROD_NO_UPDATE_NOTIFIER` - Set to `1` to hide upgrade notices
 
 Environment variables override config file values.
+
+### Upgrade notices
+
+The CLI never updates itself. When a newer version is available it prints a short notice to stderr after the command finishes, with the command that would upgrade it (e.g. `npm install -g @defprod/cli@latest`). A *suggested* upgrade is shown at most once a day; a *recommended* one on every run. A version below the minimum DefProd supports is refused with an upgrade message. Notices are not shown when stderr is not a terminal, when `CI` is set, with `--json`, or with `DEFPROD_NO_UPDATE_NOTIFIER=1`.
 
 ## Usage
 

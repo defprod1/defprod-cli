@@ -31,10 +31,10 @@ export type TextLengthCategory = keyof typeof TEXT_LENGTH;
 /**
  * Named size categories for user-supplied arrays, in items (defprod/CHG-437).
  *
- * The array counterpart of `TEXT_LENGTH`: an unbounded array accepts as many elements as the 10 MB
- * request body holds, and every loop over it pays for all of them. Pick the category that says what
- * the list is. A list with a meaning of its own (`MAX_PATCH_OPERATIONS`, `CLIENT_EVENT_MAX_BATCH`)
- * keeps its own named constant.
+ * The array counterpart of `TEXT_LENGTH`: an unbounded array accepts as many elements as the request
+ * body holds (up to 10 MB for a verified user; defprod-back's core/express/body-limits.ts), and every
+ * loop over it pays for all of them. Pick the category that says what the list is. A list with a
+ * meaning of its own (`MAX_PATCH_OPERATIONS`, `CLIENT_EVENT_MAX_BATCH`) keeps its own named constant.
  */
 export const LIST_LENGTH = {
     /** A handful a person picks: tags, labels, a few ids. */

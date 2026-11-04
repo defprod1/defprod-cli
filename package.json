@@ -1,6 +1,6 @@
 {
     "name": "@defprod/cli",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "DefProd CLI - Command-line interface for DefProd product definitions",
     "bin": {
         "defprod": "dist/main.js"

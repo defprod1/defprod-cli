@@ -8,8 +8,10 @@ export class HelpGenerator {
 
     /**
      * Generate general help showing all available commands
+     * @param options.cliLoginAvailable Include the CLI sign-in commands (defprod/CHG-502); they are
+     *   left out until DefProd says CLI sign-in is available
      */
-    public static generateGeneralHelp(): string {
+    public static generateGeneralHelp(options: { cliLoginAvailable?: boolean } = {}): string {
 
         const lines: string[] = [];
         lines.push('\nDefProd CLI - Available Commands\n');
@@ -27,6 +29,9 @@ export class HelpGenerator {
 
         if ( rootCommand.children ) {
             for ( const child of rootCommand.children ) {
+                if ( child.requiresCliLogin && ! options.cliLoginAvailable ) {
+                    continue;
+                }
                 if ( child.name === 'product' ) {
                     categories['Product Management'].push(child);
                 } else if ( child.name === 'list' ) {
@@ -37,7 +42,7 @@ export class HelpGenerator {
                     categories['Searching'].push(child);
                 } else if ( child.name === 'reorder' ) {
                     categories['Reordering'].push(child);
-                } else if ( child.name === 'config' || child.name === 'init' ) {
+                } else if ( child.name === 'config' || child.name === 'init' || child.name === 'keys' || child.name === 'login' || child.name === 'logout' ) {
                     categories['Configuration'].push(child);
                 } else {
                     categories['Other'].push(child);

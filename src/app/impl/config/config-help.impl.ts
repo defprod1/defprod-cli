@@ -18,10 +18,13 @@ export async function configHelpImpl(ctx: CliExecutionContext): Promise<void> {
     console.log('  defprodApiKey              DefProd API key');
     console.log('  defprodApiUrl              DefProd API URL');
     console.log('  currentProduct             Current product ID');
-    console.log('  strictMode                 Enable strict mode (true/false)\n');
+    console.log('  strictMode                 Enable strict mode (true/false)');
+    console.log('  keyRenewal                 How the CLI renews its DefProd API key near expiry:');
+    console.log('                             off, ask (default) or auto\n');
     console.log('Examples:');
     console.log('  /config show');
     console.log('  /config set aiProvider gemini');
-    console.log('  /config set strictMode true\n');
+    console.log('  /config set strictMode true');
+    console.log('  /config set keyRenewal auto\n');
 }
 

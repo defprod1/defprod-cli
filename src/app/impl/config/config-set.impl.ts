@@ -1,6 +1,6 @@
 import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliConfigService } from '../../services/cli-config.service';
-import { CliProxyConfig } from '../../models/cli-config-type';
+import { CliConfigType, CliKeyRenewalMode, CliProxyConfig } from '../../models/cli-config-type';
 
 /**
  * Implementation for setting configuration.
@@ -18,6 +18,7 @@ export async function configSetImpl(ctx: CliExecutionContext): Promise<void> {
         'defprodApiUrl',
         'currentProduct',
         'strictMode',
+        'keyRenewal',
         'proxy.url',
         'proxy.username',
         'proxy.password'
@@ -37,6 +38,27 @@ export async function configSetImpl(ctx: CliExecutionContext): Promise<void> {
         const masked: boolean = proxyField === 'password';
         console.log(`${key} set to: ${masked ? '***' : value}`);
         return;
+    }
+
+    // How the CLI handles a key nearing expiry (defprod/CHG-502, CLI-46 AC1)
+    if ( key === 'keyRenewal' ) {
+        const modes: string[] = Object.values(CliKeyRenewalMode);
+        const mode: string = value.trim().toLowerCase();
+        if ( ! modes.includes(mode) ) {
+            throw new Error(`Invalid keyRenewal '${value}'. Use one of: ${modes.join(', ')}.`);
+        }
+        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+            fileConfig.keyRenewal = mode as CliKeyRenewalMode;
+        });
+        console.log(`keyRenewal set to: ${mode}`);
+        return;
+    }
+
+    // A key set by hand replaces whatever was known about the previous one (defprod/CHG-502).
+    if ( key === 'defprodApiKey' ) {
+        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+            delete fileConfig.defprodApiKeyInfo;
+        });
     }
 
     // Convert string values to appropriate types

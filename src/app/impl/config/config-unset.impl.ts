@@ -1,6 +1,6 @@
 import { CliExecutionContext } from '../../core/types/cli-types';
 import { CliConfigService } from '../../services/cli-config.service';
-import { CliProxyConfig } from '../../models/cli-config-type';
+import { CliConfigType, CliProxyConfig } from '../../models/cli-config-type';
 
 /**
  * Implementation for unsetting configuration.
@@ -27,6 +27,12 @@ export async function configUnsetImpl(ctx: CliExecutionContext): Promise<void> {
     }
 
     CliConfigService.unsetConfigValue(key as any);
+    // What was known about a removed key goes with it (defprod/CHG-502).
+    if ( key === 'defprodApiKey' ) {
+        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+            delete fileConfig.defprodApiKeyInfo;
+        });
+    }
     console.log(`${key} unset.`);
 }
 

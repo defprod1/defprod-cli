@@ -1,12 +1,19 @@
+import * as readline from 'readline';
 import { Command } from 'commander';
 import { CLI_VERSION } from './app/cli-version';
 import { CliRepl } from './app/core/cli-repl';
 import { CliRpcClient } from './app/services/cli-rpc.client';
 import { CliLlmService } from './app/services/cli-llm.service';
+import { createCliToolConfirmer } from './app/services/cli-tool-gate';
 import { CliConfigService } from './app/services/cli-config.service';
 import { CliInitService } from './app/services/cli-init.service';
 import { CommandParser } from './app/core/parser/command-parser';
 import { rootCommand } from './app/spec/root.command';
+import { cliVersionNotice } from './app/services/cli-version-notice.service';
+import { beginCliCommand } from './app/services/cli-command-context';
+
+/** One-shot commands that also work without the leading slash: `defprod login` (defprod/CHG-502, CLI-44/45). */
+const BARE_WORD_COMMANDS: string[] = ['login', 'logout'];
 
 const program = new Command();
 
@@ -71,7 +78,11 @@ async function main() {
 
     // If command starts with /, it's a CLI command
     // Otherwise, it's a natural language command
-    const input: string = [...commandArgs, ...flags].join(' ');
+    const words: string[] = [...commandArgs];
+    if ( words.length > 0 && BARE_WORD_COMMANDS.includes(words[0]) ) {
+        words[0] = `/${words[0]}`;
+    }
+    const input: string = [...words, ...flags].join(' ');
 
     if ( input.startsWith('/') ) {
         // CLI command
@@ -103,8 +114,23 @@ async function processCliCommand(command: string, options: any): Promise<void> {
         await commandParser.parseAndExecute(command, rootCommand);
     } catch ( error: any ) {
         console.error(`Error: ${error.message}`);
+        cliVersionNotice.flush({ jsonOutput: !! options.json });
         process.exit(1);
     }
+    // After the command's own output, never before it (CLI-43 AC8).
+    cliVersionNotice.flush({ jsonOutput: !! options.json });
+}
+
+/** Asks one question on the terminal: the question on stderr, so stdout stays the command's output. */
+function askOnTerminal(question: string): Promise<string> {
+    const rl: readline.Interface = readline.createInterface({ input: process.stdin, output: process.stderr });
+    const answer: Promise<string> = new Promise<string>((resolve) => {
+        rl.question(question, (line: string) => {
+            rl.close();
+            resolve(line);
+        });
+    });
+    return answer;
 }
 
 /**
@@ -112,8 +138,14 @@ async function processCliCommand(command: string, options: any): Promise<void> {
  */
 async function processNaturalLanguageCommand(command: string, options: any): Promise<void> {
 
+    beginCliCommand([], !! options.json);
     const rpcClient: CliRpcClient = new CliRpcClient();
     const llmService: CliLlmService = new CliLlmService(rpcClient);
+    // A one-shot command can confirm a change only when a person is at the terminal; piped or
+    // scripted, there is nobody to ask, so every command the model names is refused (CLI-35 AC10).
+    if ( process.stdin.isTTY ) {
+        llmService.setConfirmer(createCliToolConfirmer(askOnTerminal));
+    }
 
     try {
         const currentProduct: string | undefined = CliConfigService.getCurrentProduct();
@@ -129,8 +161,10 @@ async function processNaturalLanguageCommand(command: string, options: any): Pro
         }
     } catch ( error: any ) {
         console.error(`Error: ${error.message}`);
+        cliVersionNotice.flush({ jsonOutput: !! options.json });
         process.exit(1);
     }
+    cliVersionNotice.flush({ jsonOutput: !! options.json });
 }
 
 // Run main function

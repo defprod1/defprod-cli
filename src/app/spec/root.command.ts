@@ -9,6 +9,9 @@ import { initCommand } from './init.command';
 import { helpCommand } from './help.command';
 import { exitCommand } from './exit.command';
 import { chatCommand } from './chat/chat.command';
+import { keysCommand } from './keys/keys.command';
+import { loginCommand } from './login.command';
+import { logoutCommand } from './logout.command';
 
 /**
  * Root command specification for the DefProd CLI.
@@ -46,6 +49,9 @@ export const rootCommand: CliCommandNode = {
         viewCommand,
         productCommand,
         configCommand,
+        keysCommand,
+        loginCommand,
+        logoutCommand,
         searchCommand,
         reorderCommand,
         initCommand,

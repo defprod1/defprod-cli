@@ -38,6 +38,12 @@ export interface CliCommandNode {
      * Optional next node representing an execution point
      */
     next?: CliNextNode;
+
+    /**
+     * The command belongs to CLI sign-in (defprod/CHG-502): help and completion leave it out until
+     * DefProd says CLI sign-in is available. It still runs, and says when it is not.
+     */
+    requiresCliLogin?: boolean;
 }
 
 /**
