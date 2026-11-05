@@ -1,10 +1,10 @@
 import { CliCommandNode, CliNextNode } from '../../core/types/cli-types';
-import { keysRotateImpl } from '../../impl/keys/keys-rotate.impl';
+import { keyRotateImpl } from '../../impl/key/key-rotate.impl';
 
 /**
- * Keys rotate command specification (defprod/CHG-463, CLI-42).
+ * Key rotate command specification (defprod/CHG-463, CLI-42).
  */
-export const keysRotateCommand: CliCommandNode = {
+export const keyRotateCommand: CliCommandNode = {
 
     name: 'rotate',
     description: 'Replace the CLI\'s DefProd API key with a new one and save it; the old key keeps working for a grace period',
@@ -23,7 +23,7 @@ export const keysRotateCommand: CliCommandNode = {
     next: {
         name: 'execute',
         run: async (ctx) => {
-            await keysRotateImpl(ctx);
+            await keyRotateImpl(ctx);
         }
     } as CliNextNode
 };

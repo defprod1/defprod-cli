@@ -365,6 +365,14 @@ export class CommandParser {
                 return child;
             }
         }
+        for ( const child of children ) {
+            const alias: string | undefined = child.deprecatedAliases?.find((a: string) => a.toLowerCase() === nameLower);
+            if ( alias ) {
+                // On the error stream, so output that scripts parse is unaffected (defprod/CHG-544, CLI-42 AC8).
+                process.stderr.write(`Note: /${alias} has been renamed to /${child.name}. /${alias} will be removed in a later release.\n`);
+                return child;
+            }
+        }
         return null;
     }
 

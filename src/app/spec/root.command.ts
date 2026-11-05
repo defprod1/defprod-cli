@@ -9,7 +9,7 @@ import { initCommand } from './init.command';
 import { helpCommand } from './help.command';
 import { exitCommand } from './exit.command';
 import { chatCommand } from './chat/chat.command';
-import { keysCommand } from './keys/keys.command';
+import { keyCommand } from './key/key.command';
 import { loginCommand } from './login.command';
 import { logoutCommand } from './logout.command';
 
@@ -49,7 +49,7 @@ export const rootCommand: CliCommandNode = {
         viewCommand,
         productCommand,
         configCommand,
-        keysCommand,
+        keyCommand,
         loginCommand,
         logoutCommand,
         searchCommand,

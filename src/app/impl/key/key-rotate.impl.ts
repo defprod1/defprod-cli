@@ -33,7 +33,7 @@ export function parseGracePeriod(raw: string | undefined): number | undefined {
  * configuration file is replaced in place; a key from the environment cannot be, so the new key is
  * printed for whoever manages that variable. If saving fails, the new key is printed rather than lost.
  */
-export async function keysRotateImpl(ctx: CliExecutionContext): Promise<void> {
+export async function keyRotateImpl(ctx: CliExecutionContext): Promise<void> {
 
     const gracePeriodMinutes: number | undefined = parseGracePeriod(ctx.options.grace);
     const source: DefprodApiKeySource = CliConfigService.getDefprodApiKeySource();

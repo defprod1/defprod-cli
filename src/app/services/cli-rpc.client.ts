@@ -113,7 +113,7 @@ export class CliRpcClient {
     private static cliLoginAvailability: CliLoginAvailabilityCache | null = null;
 
     /**
-     * Read from the configuration on every request rather than cached here: `/keys rotate` replaces the
+     * Read from the configuration on every request rather than cached here: `/key rotate` replaces the
      * key mid-session (defprod/CHG-463), and the REPL shares one client for its whole life. A client
      * still sending the replaced key after its grace period would revoke the user's entire key lineage
      * as possibly stolen.
@@ -454,6 +454,6 @@ export class CliRpcClient {
             return;
         }
         CliRpcClient.legacyKeyNoticeGiven = true;
-        console.error('Note: your DefProd API key is in the older, unprefixed format. Run /keys rotate to replace it with a key in the current format.');
+        console.error('Note: your DefProd API key is in the older, unprefixed format. Run /key rotate to replace it with a key in the current format.');
     }
 }

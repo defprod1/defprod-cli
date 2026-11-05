@@ -48,7 +48,8 @@ export async function productSetImpl(ctx: CliExecutionContext): Promise<void> {
             // If no exact match, try startsWith matching — but ONLY in
             // non-strict (interactive) mode. Strict mode demands exact
             // identifiers for deterministic scripting (AC6).
-            const strict: boolean = CliConfigService.isStrictMode();
+            // --strict applies to this command only (defprod/CHG-531, CLI-20 AC6).
+            const strict: boolean = ctx.options.strict === true || CliConfigService.isStrictMode();
             if ( ! matched && ! strict ) {
                 const matches = products.filter((p: any) =>
                     p.name?.toLowerCase().startsWith(identifierLower) ||

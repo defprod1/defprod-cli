@@ -135,7 +135,7 @@ describe('CLI-46 — CliKeyRenewalService', () => {
     it('runs once per command, and not before commands that look after the key themselves', async () => {
         writeConfig({ defprodApiKey: OLD_KEY, keyRenewal: 'auto' as CliConfigType['keyRenewal'], defprodApiKeyInfo: info() });
         const h: Harness = harness();
-        await run(h, false, ['keys', 'rotate']);
+        await run(h, false, ['key', 'rotate']);
         expect(h.client.requestWithApiKey).not.toHaveBeenCalled();
         beginCliCommand(['list'], false);
         await h.service.beforeRequest(h.client as unknown as CliRpcClient);
@@ -188,7 +188,7 @@ describe('CLI-46 — CliKeyRenewalService', () => {
         const h: Harness = harness({ tty: false });
         await run(h);
         expect(h.prompt).not.toHaveBeenCalled();
-        expect(h.written).toEqual(['Your DefProd key expires in 5 days (2026-11-09). Run /keys rotate to renew it.\n']);
+        expect(h.written).toEqual(['Your DefProd key expires in 5 days (2026-11-09). Run /key rotate to renew it.\n']);
         expect(readConfig().keyRenewalState?.lastWarnedOn).toBe('2026-11-04');
     });
 
@@ -212,7 +212,7 @@ describe('CLI-46 — CliKeyRenewalService', () => {
         await run(h);
         expect(h.prompt).not.toHaveBeenCalled();
         expect(h.client.requestWithApiKey).not.toHaveBeenCalled();
-        expect(h.written).toEqual(['Your DefProd key expires in 1 day (2026-11-05). Run /keys rotate to renew it.\n']);
+        expect(h.written).toEqual(['Your DefProd key expires in 1 day (2026-11-05). Run /key rotate to renew it.\n']);
 
         const later: Harness = harness();
         await run(later);

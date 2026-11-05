@@ -15,4 +15,6 @@ export * from './lib/modules/cli-login/cli-login-poll-status';
 export * from './lib/modules/user/api-key-origin';
 export * from './lib/modules/user/api-key-format';
 export * from './lib/modules/user/rotate-api-key';
+export * from './lib/modules/user/api-key-permission';
+export * from './lib/modules/user/api-key-scope-type';
 export * from './lib/modules/oauth/oauth-token-format';

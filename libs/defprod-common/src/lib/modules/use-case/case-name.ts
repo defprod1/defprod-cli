@@ -461,6 +461,8 @@ export enum CaseName {
     saveOnboardingState = 'saveOnboardingState',
     getOnboardingState = 'getOnboardingState',
     completeOnboarding = 'completeOnboarding',
+    getCredentialReviewStatus = 'getCredentialReviewStatus',
+    completeCredentialReview = 'completeCredentialReview',
     getOnboardingAnalytics = 'getOnboardingAnalytics',
     updateUserSurvey = 'updateUserSurvey',
     getUserSurvey = 'getUserSurvey',

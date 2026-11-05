@@ -406,7 +406,8 @@ export class CliRepl {
             });
 
             const productName: string = product.name || productId;
-            CliConfigService.setCurrentProduct(productId, productName);
+            // Never copies a product taken from the environment into the file (defprod/CHG-531).
+            CliConfigService.rememberCurrentProductName(productId, productName);
         } catch ( error ) {
             // Silently fail - product might not exist or API might be unavailable
         }

@@ -31,10 +31,12 @@ export async function configSetImpl(ctx: CliExecutionContext): Promise<void> {
     // Handle proxy sub-keys
     if ( key.startsWith('proxy.') ) {
         const proxyField: string = key.substring('proxy.'.length);
-        const existing: CliProxyConfig | undefined = CliConfigService.getConfigValue('proxy');
-        const proxy: CliProxyConfig = existing || { url: '' };
-        (proxy as any)[proxyField] = value;
-        CliConfigService.setConfigValue('proxy', proxy);
+        // Edit the file's own proxy, never the merged config (defprod/CHG-531).
+        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+            const proxy: CliProxyConfig = fileConfig.proxy || { url: '' };
+            (proxy as any)[proxyField] = value;
+            fileConfig.proxy = proxy;
+        });
         const masked: boolean = proxyField === 'password';
         console.log(`${key} set to: ${masked ? '***' : value}`);
         return;
@@ -54,20 +56,20 @@ export async function configSetImpl(ctx: CliExecutionContext): Promise<void> {
         return;
     }
 
-    // A key set by hand replaces whatever was known about the previous one (defprod/CHG-502).
-    if ( key === 'defprodApiKey' ) {
-        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
-            delete fileConfig.defprodApiKeyInfo;
-        });
-    }
-
     // Convert string values to appropriate types
     let typedValue: any = value;
     if ( key === 'strictMode' ) {
         typedValue = value.toLowerCase() === 'true';
     }
 
-    CliConfigService.setConfigValue(key as any, typedValue);
+    // Only this setting is written to the file, never values from the environment (defprod/CHG-531).
+    CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+        (fileConfig as any)[key] = typedValue;
+        // A key set by hand replaces whatever was known about the previous one (defprod/CHG-502).
+        if ( key === 'defprodApiKey' ) {
+            delete fileConfig.defprodApiKeyInfo;
+        }
+    });
     console.log(`${key} set to: ${key.includes('Key') ? '***' : typedValue}`);
 }
 

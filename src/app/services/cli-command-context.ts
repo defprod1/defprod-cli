@@ -5,7 +5,7 @@
  */
 export interface CliCommandState {
 
-    /** The command path, e.g. ['keys', 'rotate']; empty for a natural-language command. */
+    /** The command path, e.g. ['key', 'rotate']; empty for a natural-language command. */
     commandPath: string[];
     /** JSON output was requested: notices are withheld (CLI-46 AC14). */
     jsonOutput: boolean;

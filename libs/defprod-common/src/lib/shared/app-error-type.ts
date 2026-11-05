@@ -34,6 +34,8 @@ export enum AppErrorType {
     accountDisabled = 'accountDisabled',
     impersonationTargetDisabled = 'impersonationTargetDisabled',
     impersonationExpired = 'impersonationExpired',
+    /** Stopping an impersonation found its admin demoted or disabled: the session was signed out (ADMIN-52 AC9). */
+    impersonationAdminRevoked = 'impersonationAdminRevoked',
     impersonationForbidden = 'impersonationForbidden',
     wrongUsernameOrPassword = 'wrongUsernameOrPassword',
     invalidEmailAddress = 'invalidEmailAddress',

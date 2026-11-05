@@ -42,7 +42,7 @@ export class HelpGenerator {
                     categories['Searching'].push(child);
                 } else if ( child.name === 'reorder' ) {
                     categories['Reordering'].push(child);
-                } else if ( child.name === 'config' || child.name === 'init' || child.name === 'keys' || child.name === 'login' || child.name === 'logout' ) {
+                } else if ( child.name === 'config' || child.name === 'init' || child.name === 'key' || child.name === 'login' || child.name === 'logout' ) {
                     categories['Configuration'].push(child);
                 } else {
                     categories['Other'].push(child);

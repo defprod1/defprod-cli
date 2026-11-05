@@ -35,7 +35,8 @@ export async function helpImpl(ctx: CliExecutionContext): Promise<void> {
         'p': ['product'],
         'config': ['config'],
         'c': ['config'],
-        'keys': ['keys'],
+        'key': ['key'],
+        'keys': ['key'],
         'reorder': ['reorder'],
         'r': ['reorder'],
         'search': ['search'],
@@ -54,7 +55,7 @@ export async function helpImpl(ctx: CliExecutionContext): Promise<void> {
 
     if ( commandPath.length === 0 ) {
         console.log(`\nUnknown command: ${commandName}`);
-        console.log(`Available commands for help: list, view, product, config, keys, ${cliLoginAvailable ? 'login, logout, ' : ''}reorder, search, init, help, exit, chat\n`);
+        console.log(`Available commands for help: list, view, product, config, key, ${cliLoginAvailable ? 'login, logout, ' : ''}reorder, search, init, help, exit, chat\n`);
         const helpText: string = HelpGenerator.generateGeneralHelp({ cliLoginAvailable });
         console.log(helpText);
         return;

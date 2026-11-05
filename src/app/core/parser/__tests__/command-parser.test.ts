@@ -321,4 +321,53 @@ describe('CommandParser', () => {
             ).resolves.not.toThrow();
         });
     });
+    describe('Deprecated aliases (defprod/CHG-544, CLI-42 AC8)', () => {
+        it('runs the command under its current name and notes the rename on the error stream only', async () => {
+            const paths: string[][] = [];
+            const writes: string[] = [];
+            const stderr = vi.spyOn(process.stderr, 'write').mockImplementation((chunk: any) => { writes.push(String(chunk)); return true; });
+            const stdout = vi.spyOn(console, 'log');
+            try {
+                const root: CliCommandNode = {
+                    name: 'root',
+                    children: [ {
+                        name: 'key',
+                        deprecatedAliases: [ 'keys' ],
+                        children: [ { name: 'rotate', next: { name: 'execute', run: async (ctx) => { paths.push(ctx.commandPath); } } as CliNextNode } ]
+                    } ]
+                };
+                await parser.parseAndExecute('/keys rotate', root);
+                await parser.parseAndExecute('/KEYS rotate', root);
+                await parser.parseAndExecute('/key rotate', root);
+                expect(paths).toEqual([ [ 'key', 'rotate' ], [ 'key', 'rotate' ], [ 'key', 'rotate' ] ]);
+                expect(writes).toEqual([
+                    'Note: /keys has been renamed to /key. /keys will be removed in a later release.\n',
+                    'Note: /keys has been renamed to /key. /keys will be removed in a later release.\n'
+                ]);
+                expect(stdout).not.toHaveBeenCalled();
+            } finally {
+                stderr.mockRestore();
+                stdout.mockRestore();
+            }
+        });
+
+        it('prefers a command\'s own name over another command\'s alias', async () => {
+            const ran: string[] = [];
+            const leaf = (name: string): CliCommandNode => ({ name, next: { name: 'execute', run: async () => { ran.push(name); } } as CliNextNode });
+            const root: CliCommandNode = { name: 'root', children: [ { ...leaf('old'), deprecatedAliases: [ 'new' ] }, leaf('new') ] };
+            await parser.parseAndExecute('/new', root);
+            expect(ran).toEqual([ 'new' ]);
+        });
+
+        it('the real tree answers to /keys for the key commands', async () => {
+            const writes: string[] = [];
+            const stderr = vi.spyOn(process.stderr, 'write').mockImplementation((chunk: any) => { writes.push(String(chunk)); return true; });
+            try {
+                await expect(parser.parseAndExecute('/keys', rootCommand)).rejects.toBeInstanceOf(CommandParseError);
+                expect(writes.join('')).toContain('/keys has been renamed to /key');
+            } finally {
+                stderr.mockRestore();
+            }
+        });
+    });
 });

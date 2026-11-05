@@ -44,6 +44,13 @@ export interface CliCommandNode {
      * DefProd says CLI sign-in is available. It still runs, and says when it is not.
      */
     requiresCliLogin?: boolean;
+
+    /**
+     * Earlier names the command still answers to (defprod/CHG-544). Using one runs the command under its
+     * current name and prints a rename notice on the error stream. Help, completion and the CLI reference
+     * list only the current name.
+     */
+    deprecatedAliases?: string[];
 }
 
 /**

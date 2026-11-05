@@ -102,11 +102,8 @@ async function main() {
  */
 async function processCliCommand(command: string, options: any): Promise<void> {
 
-    // Apply global options to config
-    if ( options.strict ) {
-        CliConfigService.setConfigValue('strictMode', true);
-    }
-
+    // Global options such as --strict reach the command through the re-appended flags; they apply to
+    // this run only and are never written to the configuration file (defprod/CHG-531, CLI-20 AC6).
     const commandParser: CommandParser = new CommandParser();
 
     try {

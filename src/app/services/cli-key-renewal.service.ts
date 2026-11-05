@@ -16,7 +16,7 @@ export const EXPIRY_WARNING_MS: number = 7 * DAY_MS;
 export const KEY_DESCRIPTION_TTL_MS: number = DAY_MS;
 
 /** Commands that look after the key themselves, or never use it: no renewal check before them. */
-const COMMANDS_WITHOUT_RENEWAL: string[] = ['keys', 'login', 'logout', 'config', 'help', 'exit', 'init'];
+const COMMANDS_WITHOUT_RENEWAL: string[] = ['key', 'login', 'logout', 'config', 'help', 'exit', 'init'];
 
 /** Asks the person a question at the terminal and resolves to their answer. */
 export type CliPrompter = (question: string) => Promise<string>;
@@ -178,8 +178,8 @@ export class CliKeyRenewalService {
 
         if ( remainingMs <= EXPIRY_WARNING_MS && ! jsonOutput && state.lastWarnedOn !== today ) {
             const how: string = source === 'environment'
-                ? 'Run /keys rotate and put the new key in DEFPROD_API_KEY to renew it.'
-                : 'Run /keys rotate to renew it.';
+                ? 'Run /key rotate and put the new key in DEFPROD_API_KEY to renew it.'
+                : 'Run /key rotate to renew it.';
             this.notice(`Your DefProd key expires in ${days} ${days === 1 ? 'day' : 'days'} (${displayDate(info.expiresAt)}). ${how}`);
             updateRenewalState({ lastWarnedOn: today });
         }

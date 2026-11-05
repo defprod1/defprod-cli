@@ -310,26 +310,29 @@ export class CliConfigService {
     }
 
     /**
-     * Set a configuration value
+     * Set a configuration value in the configuration file. Only the file's own contents and this
+     * change are written: values from the environment or the built-in defaults are never copied
+     * into the file (defprod/CHG-531, CLI-34 AC10).
      * @param key Configuration key
      * @param value Configuration value
      */
     public static setConfigValue<K extends keyof CliConfigType>(key: K, value: CliConfigType[K]): void {
 
-        const config: CliConfigType = CliConfigService.loadConfig();
-        config[key] = value;
-        CliConfigService.saveConfig(config);
+        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+            fileConfig[key] = value;
+        });
     }
 
     /**
-     * Unset a configuration value
+     * Remove a configuration value from the configuration file. A value the environment supplies
+     * still applies afterwards, as it is not held in the file (defprod/CHG-531).
      * @param key Configuration key
      */
     public static unsetConfigValue<K extends keyof CliConfigType>(key: K): void {
 
-        const config: CliConfigType = CliConfigService.loadConfig();
-        delete config[key];
-        CliConfigService.saveConfig(config);
+        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+            delete fileConfig[key];
+        });
     }
 
     /**
@@ -374,10 +377,35 @@ export class CliConfigService {
      */
     public static setCurrentProduct(productId: string, productName?: string): void {
 
-        CliConfigService.setConfigValue('currentProduct', productId);
-        if ( productName ) {
-            CliConfigService.setConfigValue('currentProductName', productName);
+        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+            fileConfig.currentProduct = productId;
+            if ( productName ) {
+                fileConfig.currentProductName = productName;
+            }
+        });
+    }
+
+    /**
+     * Remember the name of the current product, looked up after the fact. It is saved only when the
+     * configuration file itself holds that product: a product taken from the environment stays out of
+     * the file, so a later change to the environment still takes effect (defprod/CHG-531, CLI-34 AC10).
+     * @param productId The product the name belongs to
+     * @param productName Its name
+     * @returns Whether the name was saved
+     */
+    public static rememberCurrentProductName(productId: string, productName: string): boolean {
+
+        let saved: boolean = false;
+        if ( CliConfigService.readFileConfig().currentProduct !== productId ) {
+            return saved;
         }
+        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+            if ( fileConfig.currentProduct === productId ) {
+                fileConfig.currentProductName = productName;
+                saved = true;
+            }
+        });
+        return saved;
     }
 
     /**
@@ -394,8 +422,10 @@ export class CliConfigService {
      */
     public static clearCurrentProduct(): void {
 
-        CliConfigService.unsetConfigValue('currentProduct');
-        CliConfigService.unsetConfigValue('currentProductName');
+        CliConfigService.updateConfigFile((fileConfig: Partial<CliConfigType>): void => {
+            delete fileConfig.currentProduct;
+            delete fileConfig.currentProductName;
+        });
     }
 
     /**

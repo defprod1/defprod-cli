@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiKeyOrigin } from '@defprod/defprod-common';
-import { keysRotateImpl, parseGracePeriod } from '../keys/keys-rotate.impl';
+import { keyRotateImpl, parseGracePeriod } from '../key/key-rotate.impl';
 import { CliConfigService } from '../../services/cli-config.service';
 import { CliRpcClient } from '../../services/cli-rpc.client';
 import { apiKeyFingerprint } from '../../services/cli-api-key-info';
@@ -23,7 +23,7 @@ let savedEnv: NodeJS.ProcessEnv;
 let logged: string[];
 
 function ctx(options: Record<string, any> = {}): CliExecutionContext {
-    return { commandPath: ['keys', 'rotate'], args: {}, options, rawTokens: [] };
+    return { commandPath: ['key', 'rotate'], args: {}, options, rawTokens: [] };
 }
 
 beforeEach(() => {
@@ -46,14 +46,14 @@ afterEach(() => {
     fs.rmSync(workDir, { recursive: true, force: true });
 });
 
-describe('/keys rotate', () => {
+describe('/key rotate', () => {
 
     it('saves the successor with what was known about the key and its own expiry', async () => {
         CliConfigService.updateConfigFile((c: Partial<CliConfigType>) => {
             c.defprodApiKey = OLD;
             c.defprodApiKeyInfo = { fingerprint: apiKeyFingerprint(OLD), origin: ApiKeyOrigin.cliLogin, name: 'CLI · laptop', expiresAt: '2026-11-10T00:00:00.000Z' };
         });
-        await keysRotateImpl(ctx());
+        await keyRotateImpl(ctx());
         const saved: Partial<CliConfigType> = CliConfigService.readFileConfig();
         expect(saved.defprodApiKey).toBe(NEW);
         expect(saved.defprodApiKeyInfo).toMatchObject({
@@ -65,7 +65,7 @@ describe('/keys rotate', () => {
     it('refuses without a key, with the no-key message', async () => {
         CliConfigService.updateConfigFile(() => undefined);
         vi.spyOn(CliRpcClient.prototype, 'noApiKeyMessage').mockResolvedValue('DefProd API key is not configured. Use /config set defprodApiKey <key>');
-        await expect(keysRotateImpl(ctx())).rejects.toThrow('DefProd API key is not configured');
+        await expect(keyRotateImpl(ctx())).rejects.toThrow('DefProd API key is not configured');
     });
 
     it('parses grace periods', () => {
